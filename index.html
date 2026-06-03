@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>The Deal Room</title>
+<meta name="theme-color" content="#0a0a0b">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-dealroom.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Deal Room">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --carbon:#0a0a0b; --carbon-2:#111113; --panel:#161618; --line:#262629;
+    --ink:#ededed; --mute:#8a8a8f; --faint:#5a5a60;
+    --orange:#ff5a1f; --orange-soft:#ff7a47; --green:#36d399; --red:#f0506e; --amber:#f2c14e;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:"Inter",system-ui,-apple-system,sans-serif;
+    --serif:"Cormorant Garamond",Georgia,serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--carbon);color:var(--ink);font-family:var(--sans)}
+  body{overflow-x:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100dvh}
+  .label{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+  .wrap{flex:1;width:100%;max-width:600px;margin:0 auto;padding:0 18px;display:flex;flex-direction:column}
+  button{font-family:var(--sans);cursor:pointer;border:none;background:none;color:inherit}
+  .hidden{display:none!important}
+
+  /* header */
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 0 14px;position:sticky;top:0;background:linear-gradient(180deg,var(--carbon) 70%,transparent);z-index:5}
+  .brand{display:flex;align-items:baseline;gap:9px}
+  .brand b{font-family:var(--serif);font-weight:600;font-size:21px;letter-spacing:.01em}
+  .brand .tick{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--orange);border:1px solid var(--line);padding:3px 6px;border-radius:4px}
+  .gear{width:38px;height:38px;border:1px solid var(--line);border-radius:9px;display:grid;place-items:center;color:var(--mute);font-size:16px;background:var(--carbon-2)}
+  .gear:active{border-color:var(--orange);color:var(--orange)}
+
+  /* intro line */
+  .eyebrow{margin:6px 0 2px}
+  .h1{font-family:var(--serif);font-size:32px;line-height:1.05;font-weight:600;margin:2px 0 4px}
+  .sub{color:var(--mute);font-size:13.5px;line-height:1.5;margin-bottom:18px}
+
+  /* persona grid */
+  .grid{display:flex;flex-direction:column;gap:11px;padding-bottom:30px}
+  .card{position:relative;border:1px solid var(--line);background:linear-gradient(170deg,var(--panel),var(--carbon-2));border-radius:14px;padding:15px 15px 14px;overflow:hidden;transition:border-color .18s,transform .12s}
+  .card:active{transform:scale(.992)}
+  .card .corner{position:absolute;top:0;right:0;width:30px;height:30px;border-top:1px solid var(--line);border-right:1px solid var(--line);border-top-right-radius:14px}
+  .card .corner::after{content:"";position:absolute;top:6px;right:6px;width:4px;height:4px;background:var(--orange);border-radius:50%}
+  .card .cname{font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.1}
+  .card .crole{color:var(--mute);font-size:12.5px;margin-top:2px}
+  .card .ctags{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap}
+  .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line);border-radius:20px;padding:4px 9px}
+  .tag.diff-brutal{color:var(--red);border-color:rgba(240,80,110,.3)}
+  .tag.diff-hard{color:var(--amber);border-color:rgba(242,193,78,.3)}
+  .tag.diff-warm{color:var(--green);border-color:rgba(54,211,153,.3)}
+  .card .sell{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--mute);line-height:1.45}
+  .card .sell b{color:var(--ink);font-weight:500}
+
+  /* setup / settings */
+  .field{margin-bottom:15px}
+  .field label{display:block;margin-bottom:6px}
+  .field input{width:100%;background:var(--carbon-2);border:1px solid var(--line);border-radius:10px;color:var(--ink);font-family:var(--mono);font-size:13px;padding:13px 13px}
+  .field input:focus{outline:none;border-color:var(--orange)}
+  .field .hint{font-size:11.5px;color:var(--faint);margin-top:6px;line-height:1.45}
+  .field .hint a{color:var(--orange-soft);text-decoration:none}
+  .btn{display:block;width:100%;text-align:center;background:var(--orange);color:#140a04;font-weight:600;font-size:15px;padding:15px;border-radius:11px;letter-spacing:.01em}
+  .btn:active{background:var(--orange-soft)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:500}
+  .btn.ghost:active{border-color:var(--orange)}
+  .btn[disabled]{opacity:.5;pointer-events:none}
+  .btn-row{display:flex;flex-direction:column;gap:10px;padding-bottom:34px;margin-top:4px}
+
+  /* call screen */
+  .call{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;padding-bottom:30px}
+  .call .who{font-family:var(--serif);font-size:30px;font-weight:600;margin-top:6px}
+  .call .whorole{color:var(--mute);font-size:13px;margin-bottom:30px}
+  .orb{width:168px;height:168px;border-radius:50%;display:grid;place-items:center;position:relative;margin-bottom:28px}
+  .orb .core{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#2a2a2e,#0d0d0f);border:1px solid var(--line);display:grid;place-items:center;transition:transform .25s,box-shadow .25s}
+  .orb .ring{position:absolute;inset:0;border-radius:50%;border:1px solid transparent}
+  .orb.speaking .core{box-shadow:0 0 60px -6px rgba(255,90,31,.6);border-color:var(--orange);transform:scale(1.05)}
+  .orb.speaking .ring{border-color:rgba(255,90,31,.4);animation:pulse 1.4s ease-out infinite}
+  .orb.listening .core{box-shadow:0 0 40px -10px rgba(54,211,153,.45);border-color:rgba(54,211,153,.5)}
+  .orb.listening .ring{border-color:rgba(54,211,153,.3);animation:pulse 2s ease-out infinite}
+  @keyframes pulse{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.35);opacity:0}}
+  .orb .ic{font-size:34px}
+  .status{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);min-height:16px}
+  .captions{margin-top:20px;min-height:46px;max-width:430px;font-size:15px;line-height:1.5;color:var(--ink)}
+  .captions .src{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:3px}
+  .endbtn{margin-top:34px;background:var(--red);color:#fff;font-weight:600;font-size:15px;padding:15px 40px;border-radius:40px;display:inline-flex;align-items:center;gap:9px}
+  .endbtn:active{filter:brightness(1.1)}
+  .topiccard{border:1px solid var(--line);background:var(--carbon-2);border-radius:13px;padding:16px;margin:14px 0 6px;max-width:480px}
+  .topiccard .label{margin-bottom:7px}
+  .topiccard p{margin:0;font-size:14.5px;line-height:1.55;color:var(--ink)}
+
+  /* results */
+  .res-h{font-family:var(--serif);font-size:30px;font-weight:600;margin:8px 0 2px}
+  .verdict{font-size:14px;color:var(--mute);line-height:1.55;margin-bottom:22px}
+  .score-big{display:flex;align-items:baseline;gap:10px;margin:10px 0 24px}
+  .score-big .n{font-family:var(--serif);font-size:64px;font-weight:600;line-height:.9}
+  .score-big .d{font-family:var(--mono);font-size:13px;color:var(--faint)}
+  .metric{margin-bottom:15px}
+  .metric .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .metric .mname{font-size:13.5px;font-weight:500}
+  .metric .mval{font-family:var(--mono);font-size:12px;color:var(--mute)}
+  .bar{height:5px;background:var(--line);border-radius:4px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--orange);border-radius:4px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+  .fix{border:1px solid rgba(255,90,31,.35);background:linear-gradient(170deg,rgba(255,90,31,.08),transparent);border-radius:13px;padding:16px;margin:22px 0}
+  .fix .label{color:var(--orange);margin-bottom:8px}
+  .fix p{margin:0;font-size:15px;line-height:1.55}
+  .transcript{margin-top:24px;border-top:1px solid var(--line);padding-top:18px}
+  .transcript .line{font-size:13.5px;line-height:1.5;margin-bottom:11px}
+  .transcript .line .who2{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:2px}
+  .transcript .line.me .who2{color:var(--orange-soft)}
+
+  .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--line);color:var(--ink);font-size:13px;padding:11px 16px;border-radius:10px;max-width:88%;text-align:center;z-index:50;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  .spin{width:17px;height:17px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;display:inline-block;animation:sp .7s linear infinite;vertical-align:-3px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .loadwrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--mute);text-align:center}
+  .loadwrap .spin{width:26px;height:26px;border-width:3px}
+  .back{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--mute);padding:8px 0;display:inline-flex;align-items:center;gap:6px}
+  .back:active{color:var(--orange)}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="toast"></div>
+
+<script type="module">
+import { Conversation } from "https://esm.sh/@elevenlabs/client@latest";
+
+/* ---------- storage ---------- */
+const LS = {
+  get:(k,d)=>{ try{ const v=localStorage.getItem("dr_"+k); return v===null?d:JSON.parse(v);}catch(e){return d;} },
+  set:(k,v)=>localStorage.setItem("dr_"+k,JSON.stringify(v))
+};
+
+/* ---------- voices (ElevenLabs premade — universal IDs) ---------- */
+const VOICE = {
+  male:   "pNInz6obpgDQGcFmaJgB",   // Adam — grounded, authoritative
+  female: "21m00Tcm4TlvDq8ikWAM"    // Rachel — crisp, composed
+};
+
+/* ---------- prospect roster ---------- */
+const PERSONAS = [
+  {
+    id:"marcus", name:"Marcus Hale", role:"CFO · 40-location HVAC roll-up", gender:"male",
+    difficulty:"brutal",
+    personality:"impatient, numbers-first, allergic to fluff and small talk",
+    mood:"you caught him walking between back-to-back meetings",
+    pain:"his location managers all report numbers differently — he can't trust a single consolidated figure and the board meeting is in two weeks",
+    objections:["I've already got a guy for that","Just email me something","What does this actually cost","We literally just paid for ServiceTitan"],
+    winCondition:"he only thaws if you quantify — in dollars or hours — what the messy, inconsistent reporting is costing him, and you do it fast without a pitch",
+    sell:"an AI layer that normalizes all 40 locations into one board-ready operating view",
+    first:"Hale."
+  },
+  {
+    id:"priya", name:"Priya Sharma", role:"Founder & CEO · seed-stage SaaS", gender:"female",
+    difficulty:"hard",
+    personality:"sharp, skeptical, has heard every pitch, tests whether you actually understand her business",
+    mood:"mildly annoyed she picked up an unknown number",
+    pain:"she's drowning in support tickets and her two engineers are buried instead of shipping",
+    objections:["We're pre-revenue, we can't spend","Why wouldn't I just build this myself","How are you different from Intercom","I don't have time for a demo"],
+    winCondition:"she engages only if you show you understand the founder's real tradeoff — eng time vs growth — and tie your thing to freeing her engineers, not 'features'",
+    sell:"a done-for-you AI support layer that deflects 60% of tickets",
+    first:"Hello, who's this?"
+  },
+  {
+    id:"dale", name:"Dale Brennan", role:"Owner · independent plumbing co.", gender:"male",
+    difficulty:"warm",
+    personality:"friendly, chatty, easily distracted, agrees with everything then ghosts — the real challenge is pinning him to a commitment",
+    mood:"relaxed, between jobs, happy to talk",
+    pain:"he misses half his inbound calls because he's under a sink, and those are lost jobs",
+    objections:["Yeah that sounds great, send me info","I'm not really a tech guy","My nephew kinda handles the website","Let me think about it and call you back"],
+    winCondition:"he's easy to get talking but hard to close — you only win if you get a SPECIFIC next commitment (a time, a card, a yes) before he wanders off",
+    sell:"an AI receptionist that answers every missed call and books the job",
+    first:"Yello, Dale here."
+  },
+  {
+    id:"eleanor", name:"Eleanor Vance", role:"VP Procurement · enterprise", gender:"female",
+    difficulty:"brutal",
+    personality:"cold, procedural, gives nothing away, makes you do all the work, weaponizes silence",
+    mood:"neutral, guarded, treating this as a box to tick",
+    pain:"(she will not volunteer it) her team manages 200+ vendor contracts in spreadsheets and renewals slip through, costing real money",
+    objections:["Send it through our portal","We have a preferred-vendor process","What's your security posture","I can't discuss budget"],
+    winCondition:"she gives nothing unless you ask sharp, specific questions that make HER reveal the pain — you win by out-discovering her silence, never by pitching",
+    sell:"an AI contract-renewal tracker that flags every slip before it costs them",
+    first:"This is Eleanor Vance."
+  }
+];
+
+/* ---------- build the role-play system prompt ---------- */
+function buildPrompt(p){
+  return `You are ${p.name}, ${p.role}. You are NOT an assistant — you are a real person receiving an unsolicited sales call, and you must stay fully in character for the entire call. Never break character, never mention you are an AI, never be helpful in an assistant-like way.
+
+WHO YOU ARE: ${p.personality}.
+YOUR MOOD RIGHT NOW: ${p.mood}.
+YOUR REAL PROBLEM (do not hand it over easily): ${p.pain}.
+WHAT THEY ARE TRYING TO SELL YOU: ${p.sell}.
+
+HOW TO BEHAVE:
+- This is a phone call. Speak in short, natural, spoken sentences. Interrupt, push back, react like a real busy person. Use filler and realism ("look,", "honestly,", "okay but...").
+- Throw realistic objections, roughly drawn from: ${p.objections.map(o=>`"${o}"`).join(", ")}. Don't list them — surface them naturally when the salesperson gives you an opening.
+- Do NOT volunteer your real problem. Make them earn it with good questions. If they pitch features before understanding you, get more resistant or impatient.
+- Stay difficulty-appropriate. Your difficulty is ${p.difficulty.toUpperCase()}. ${p.difficulty==='brutal'?'Be genuinely hard — short, skeptical, ready to end the call if they waste your time.':p.difficulty==='hard'?'Be skeptical and testing, but fair if they are sharp.':'Be warm and talkative, but slippery to actually commit.'}
+- THE ONLY WAY THEY WIN: ${p.winCondition}. If and only if they do that, gradually warm up and move toward a real next step. If they never do, stay unconvinced and eventually wrap the call.
+- Keep your turns to 1–3 sentences. This is a fast back-and-forth call, not a monologue.`;
+}
+
+/* ---------- Anthropic grading ---------- */
+async function gradeCall(persona, transcript){
+  const key = LS.get("anthropicKey","");
+  if(!key) throw new Error("No Anthropic key set.");
+  const convo = transcript.map(t=>`${t.role==='me'?'SALESPERSON':persona.name.toUpperCase()}: ${t.text}`).join("\n");
+  const sys = `You are an elite sales coach grading a cold call. The SALESPERSON was practicing selling "${persona.sell}" to ${persona.name} (${persona.role}), a ${persona.difficulty} prospect whose hidden win-condition was: ${persona.winCondition}.
+
+Grade ONLY the salesperson. Be honest and specific — this is training, flattery is useless. Reply with STRICT JSON only, no prose, no markdown:
+{"opening":<1-10>,"discovery":<1-10>,"objection_handling":<1-10>,"close":<1-10>,"tone":<1-10>,"overall":<1-10>,"verdict":"<one or two sentences, direct>","the_one_fix":"<the single highest-leverage thing to change next call, concrete and actionable>"}`;
+  const res = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:"claude-haiku-4-5",max_tokens:600,system:sys,messages:[{role:"user",content:`Here is the call transcript:\n\n${convo||"(no words were exchanged)"}\n\nGrade it now as strict JSON.`}]})
+  });
+  if(!res.ok){ throw new Error("Grading failed: "+res.status+" "+(await res.text()).slice(0,140)); }
+  const j = await res.json();
+  let txt = (j.content&&j.content[0]&&j.content[0].text||"").trim();
+  const m = txt.match(/\{[\s\S]*\}/); if(m) txt = m[0];
+  return JSON.parse(txt);
+}
+
+/* ---------- ElevenLabs agent (create once, reuse) ---------- */
+async function ensureAgent(){
+  let id = LS.get("agentId","");
+  if(id) return id;
+  const key = LS.get("elevenKey","");
+  if(!key) throw new Error("No ElevenLabs key set.");
+  const res = await fetch("https://api.elevenlabs.io/v1/convai/agents/create",{
+    method:"POST",
+    headers:{"xi-api-key":key,"content-type":"application/json"},
+    body:JSON.stringify({
+      name:"The Deal Room — Prospect",
+      conversation_config:{
+        agent:{ prompt:{ prompt:"You are a sales prospect. Your persona is set per call.", llm:"gpt-4o" }, first_message:"Hello?", language:"en" },
+        tts:{ voice_id:VOICE.male }
+      },
+      platform_settings:{
+        overrides:{ conversation_config_override:{
+          agent:{ prompt:{ prompt:true }, first_message:true, language:true },
+          tts:{ voice_id:true }
+        }}
+      }
+    })
+  });
+  if(!res.ok){ throw new Error("Couldn't create agent: "+res.status+" "+(await res.text()).slice(0,160)); }
+  const j = await res.json();
+  id = j.agent_id || j.agentId;
+  if(!id) throw new Error("Agent created but no id returned.");
+  LS.set("agentId",id);
+  return id;
+}
+
+/* ---------- state + app ---------- */
+const app = document.getElementById("app");
+let S = { view:"home", persona:null, conversation:null, transcript:[], grade:null, status:"" };
+function go(v){ S.view=v; render(); }
+function toast(msg,ms=2600){ const t=document.getElementById("toast"); t.innerHTML=`<div class="toast">${msg}</div>`; if(ms) setTimeout(()=>{t.innerHTML="";},ms); }
+const ready = ()=> LS.get("elevenKey","") && LS.get("anthropicKey","");
+
+/* ---------- views ---------- */
+function header(){
+  return `<header>
+    <div class="brand"><b>The Deal Room</b><span class="tick">LIVE</span></div>
+    <button class="gear" onclick="DR.go('setup')">⚙</button>
+  </header>`;
+}
+
+function homeView(){
+  if(!ready()){
+    return header()+`
+    <div class="eyebrow label">First-time setup</div>
+    <div class="h1">Two keys.<br>Then you're on the phone.</div>
+    <div class="sub">The Deal Room runs on accounts you already have — your ElevenLabs sub powers the live voice, Claude grades the call. Nothing new to buy.</div>
+    <div class="btn-row"><button class="btn" onclick="DR.go('setup')">Add my keys →</button></div>`;
+  }
+  return header()+`
+    <div class="eyebrow label">Pick who you're up against</div>
+    <div class="h1">Who's on the line?</div>
+    <div class="sub">Choose a prospect, get your scenario, and make the call. Speak naturally — they'll talk back, push back, and interrupt. End the call to get graded.</div>
+    <div class="grid">
+      ${PERSONAS.map(p=>`
+        <div class="card" onclick="DR.pick('${p.id}')">
+          <div class="corner"></div>
+          <div class="cname">${p.name}</div>
+          <div class="crole">${p.role}</div>
+          <div class="ctags">
+            <span class="tag diff-${p.difficulty}">${p.difficulty}</span>
+            <span class="tag">${p.gender==='male'?'♂ voice':'♀ voice'}</span>
+          </div>
+          <div class="sell">You're selling: <b>${p.sell}</b></div>
+        </div>`).join("")}
+    </div>`;
+}
+
+function setupView(){
+  const ek=LS.get("elevenKey",""), ak=LS.get("anthropicKey","");
+  return `<button class="back" onclick="DR.go('home')">← back</button>
+    <div class="eyebrow label">Settings · keys stay on this device</div>
+    <div class="h1" style="font-size:26px">Connect your accounts</div>
+    <div class="field" style="margin-top:18px">
+      <label class="label" style="color:var(--mute)">ElevenLabs API key</label>
+      <input id="ek" type="password" placeholder="sk_..." value="${ek}">
+      <div class="hint">Powers the live voice call. From <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank">elevenlabs.io → Settings → API Keys</a>. Your plan's monthly agent-minutes are already included.</div>
+    </div>
+    <div class="field">
+      <label class="label" style="color:var(--mute)">Anthropic (Claude) API key</label>
+      <input id="ak" type="password" placeholder="sk-ant-..." value="${ak}">
+      <div class="hint">Grades each call. The same key Sharpen uses — from <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="DR.saveKeys()">Save & continue</button>
+      ${LS.get("agentId","")?`<button class="btn ghost" onclick="DR.resetAgent()">Rebuild prospect agent</button>`:""}
+    </div>`;
+}
+
+function topicView(){
+  const p=S.persona;
+  return `<button class="back" onclick="DR.go('home')">← back</button>
+    <div class="eyebrow label">Your scenario</div>
+    <div class="h1" style="font-size:27px">${p.name}</div>
+    <div class="sub" style="margin-bottom:6px">${p.role} · <span style="color:var(--${p.difficulty==='brutal'?'red':p.difficulty==='hard'?'amber':'green'})">${p.difficulty}</span></div>
+    <div class="topiccard">
+      <div class="label">The call</div>
+      <p>You're cold-calling to sell <b style="color:var(--ink)">${p.sell}</b>. They didn't ask for this call. ${p.gender==='male'?'He':'She'}'s ${p.mood}.</p>
+    </div>
+    <div class="topiccard">
+      <div class="label">Your job</div>
+      <p style="color:var(--mute)">Open strong, earn the right to ask questions, handle what comes back, and get a real next step. They won't make it easy.</p>
+    </div>
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn" onclick="DR.startCall()">📞 Start the call</button>
+    </div>`;
+}
+
+function callView(){
+  const p=S.persona;
+  return `<div class="call">
+    <div class="label">Connected · on the line</div>
+    <div class="who">${p.name}</div>
+    <div class="whorole">${p.role}</div>
+    <div class="orb" id="orb"><div class="ring"></div><div class="core"><span class="ic" id="orbic">📞</span></div></div>
+    <div class="status" id="status">${S.status||"connecting…"}</div>
+    <div class="captions" id="captions"></div>
+    <button class="endbtn" onclick="DR.endCall()">■ End call</button>
+  </div>`;
+}
+
+function gradingView(){
+  return `<div class="loadwrap">
+    <div class="spin"></div>
+    <div class="label">Reviewing the call</div>
+    <div style="font-size:14px;max-width:280px">Claude is grading your opening, discovery, objection-handling, close and tone…</div>
+  </div>`;
+}
+
+function resultsView(){
+  const g=S.grade, p=S.persona;
+  if(!g) return `<div class="loadwrap"><div class="label">No grade</div></div>`;
+  const metrics=[["Opening",g.opening],["Discovery",g.discovery],["Objection handling",g.objection_handling],["Close",g.close],["Tone",g.tone]];
+  return `<button class="back" onclick="DR.go('home')">← new call</button>
+    <div class="eyebrow label">Call graded · ${p.name}</div>
+    <div class="res-h">The verdict</div>
+    <div class="score-big"><span class="n" style="color:${g.overall>=7?'var(--green)':g.overall>=5?'var(--amber)':'var(--red)'}">${g.overall}</span><span class="d">/ 10 overall</span></div>
+    <div class="verdict">${g.verdict||""}</div>
+    ${metrics.map(([n,v])=>`
+      <div class="metric"><div class="top"><span class="mname">${n}</span><span class="mval">${v}/10</span></div>
+      <div class="bar"><i style="width:${(v||0)*10}%;background:${v>=7?'var(--green)':v>=5?'var(--amber)':'var(--orange)'}"></i></div></div>`).join("")}
+    <div class="fix"><div class="label">The one fix</div><p>${g.the_one_fix||""}</p></div>
+    <div class="transcript">
+      <div class="label" style="margin-bottom:12px">The transcript</div>
+      ${S.transcript.length?S.transcript.map(t=>`<div class="line ${t.role}"><span class="who2">${t.role==='me'?'You':p.name}</span>${t.text}</div>`).join(""):'<div class="verdict">No words were captured.</div>'}
+    </div>
+    <div class="btn-row" style="margin-top:24px">
+      <button class="btn" onclick="DR.pick('${p.id}')">↻ Run it again</button>
+      <button class="btn ghost" onclick="DR.go('home')">Pick a different prospect</button>
+    </div>`;
+}
+
+function render(){
+  const v=S.view;
+  app.innerHTML =
+    v==="setup"?setupView():
+    v==="topic"?topicView():
+    v==="call"?callView():
+    v==="grading"?gradingView():
+    v==="results"?resultsView():
+    homeView();
+  window.scrollTo(0,0);
+}
+
+/* ---------- controller ---------- */
+const DR = {
+  go,
+  pick(id){ S.persona=PERSONAS.find(p=>p.id===id); S.transcript=[]; S.grade=null; go("topic"); },
+  saveKeys(){
+    const ek=document.getElementById("ek").value.trim(), ak=document.getElementById("ak").value.trim();
+    if(!ek||!ak){ toast("Both keys are needed."); return; }
+    LS.set("elevenKey",ek); LS.set("anthropicKey",ak);
+    toast("Saved ✓"); go("home");
+  },
+  resetAgent(){ LS.set("agentId",""); toast("Agent will rebuild on next call."); render(); },
+
+  async startCall(){
+    const p=S.persona;
+    S.transcript=[]; S.status="connecting…"; go("call");
+    try{
+      await navigator.mediaDevices.getUserMedia({audio:true});
+    }catch(e){ toast("Mic permission denied — needed for the call."); go("topic"); return; }
+    let agentId;
+    try{ agentId=await ensureAgent(); }
+    catch(e){ toast(e.message,5000); go("setup"); return; }
+
+    try{
+      S.conversation = await Conversation.startSession({
+        agentId,
+        connectionType:"webrtc",
+        overrides:{
+          agent:{ prompt:{ prompt:buildPrompt(p) }, firstMessage:p.first, language:"en" },
+          tts:{ voiceId: p.gender==='male'?VOICE.male:VOICE.female }
+        },
+        onConnect:()=>{ setStatus("on the line"); },
+        onDisconnect:()=>{ /* handled by endCall */ },
+        onError:(err)=>{ toast("Call error: "+(err&&err.message||err),4500); },
+        onModeChange:(m)=>{ setOrb(m&&m.mode); },
+        onStatusChange:(st)=>{ /* connected/disconnected */ },
+        onMessage:(m)=>{
+          // m: { source: 'user'|'ai', message: '...' }
+          const role = (m.source==='user'||m.source==='human')?'me':'them';
+          const text = m.message||m.text||"";
+          if(!text) return;
+          S.transcript.push({role,text});
+          showCaption(role,text);
+        }
+      });
+    }catch(e){ toast("Couldn't start the call: "+(e&&e.message||e),5000); go("topic"); }
+  },
+
+  async endCall(){
+    try{ if(S.conversation) await S.conversation.endSession(); }catch(e){}
+    S.conversation=null;
+    if(!S.transcript.length){ toast("Call ended — no speech captured."); go("home"); return; }
+    go("grading");
+    try{
+      S.grade = await gradeCall(S.persona,S.transcript);
+      go("results");
+    }catch(e){ toast(e.message,5000); go("home"); }
+  }
+};
+window.DR = DR;
+
+function setStatus(t){ S.status=t; const el=document.getElementById("status"); if(el) el.textContent=t; }
+function setOrb(mode){
+  const orb=document.getElementById("orb"), ic=document.getElementById("orbic");
+  if(!orb) return;
+  orb.classList.remove("speaking","listening");
+  if(mode==="speaking"){ orb.classList.add("speaking"); if(ic)ic.textContent="🔊"; setStatus(S.persona.name+" is speaking"); }
+  else { orb.classList.add("listening"); if(ic)ic.textContent="🎙"; setStatus("your turn — speak"); }
+}
+function showCaption(role,text){
+  const el=document.getElementById("captions"); if(!el) return;
+  el.innerHTML=`<span class="src">${role==='me'?'You':S.persona.name}</span>${text}`;
+}
+
+/* ---------- boot ---------- */
+render();
+if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
+</script>
+</body>
+</html>
