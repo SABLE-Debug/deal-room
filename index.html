@@ -337,34 +337,10 @@ Reply with STRICT JSON only, no prose, no markdown:
   return JSON.parse(txt);
 }
 
-/* ---------- ElevenLabs agent (create once, reuse) ---------- */
-async function ensureAgent(){
-  let id = LS.get("agentId","");
-  if(id) return id;
-  const key = LS.get("elevenKey","");
-  if(!key) throw new Error("No ElevenLabs key set.");
-  const res = await fetch("https://api.elevenlabs.io/v1/convai/agents/create",{
-    method:"POST",
-    headers:{"xi-api-key":key,"content-type":"application/json"},
-    body:JSON.stringify({
-      name:"The Deal Room — Prospect",
-      conversation_config:{
-        agent:{ prompt:{ prompt:"You are a sales prospect. Your persona is set per call.", llm:"gpt-4o-mini" }, first_message:"Hello?", language:"en" },
-        tts:{ voice_id:VOICE.male }
-      },
-      platform_settings:{
-        overrides:{ conversation_config_override:{
-          agent:{ prompt:{ prompt:true }, first_message:true, language:true },
-          tts:{ voice_id:true }
-        }}
-      }
-    })
-  });
-  if(!res.ok){ throw new Error("Couldn't create agent: "+res.status+" "+(await res.text()).slice(0,160)); }
-  const j = await res.json();
-  id = j.agent_id || j.agentId;
-  if(!id) throw new Error("Agent created but no id returned.");
-  LS.set("agentId",id);
+/* ---------- ElevenLabs prospect agent (one public agent, made in the dashboard) ---------- */
+function getAgentId(){
+  const id = LS.get("agentId","");
+  if(!id) throw new Error("No prospect agent yet — paste your public Agent ID in Settings.");
   return id;
 }
 
@@ -373,7 +349,7 @@ const app = document.getElementById("app");
 let S = { view:"home", persona:null, conversation:null, transcript:[], grade:null, status:"", earned:0, leveledUp:null };
 function go(v){ S.view=v; render(); }
 function toast(msg,ms=2600){ const t=document.getElementById("toast"); t.innerHTML=`<div class="toast">${msg}</div>`; if(ms) setTimeout(()=>{t.innerHTML="";},ms); }
-const ready = ()=> LS.get("elevenKey","") && LS.get("anthropicKey","");
+const ready = ()=> LS.get("agentId","") && LS.get("anthropicKey","");
 
 /* ---------- views ---------- */
 function header(){
@@ -395,9 +371,9 @@ function homeView(){
   if(!ready()){
     return header()+`
     <div class="eyebrow label">First-time setup</div>
-    <div class="h1">Two keys.<br>Then you're on the phone.</div>
-    <div class="sub">The Deal Room runs on accounts you already have — your ElevenLabs sub powers the live voice, Claude grades the call. Nothing new to buy.</div>
-    <div class="btn-row"><button class="btn" onclick="DR.go('setup')">Add my keys →</button></div>`;
+    <div class="h1">One agent, one key.<br>Then you're on the phone.</div>
+    <div class="sub">The Deal Room runs on accounts you already have — your ElevenLabs agent powers the live voice, Claude grades the call. Nothing new to buy.</div>
+    <div class="btn-row"><button class="btn" onclick="DR.go('setup')">Set it up →</button></div>`;
   }
   return header()+rankStrip()+`
     <div class="eyebrow label">Pick who you're up against</div>
@@ -420,14 +396,14 @@ function homeView(){
 }
 
 function setupView(){
-  const ek=LS.get("elevenKey",""), ak=LS.get("anthropicKey","");
+  const ag=LS.get("agentId",""), ak=LS.get("anthropicKey","");
   return `<button class="back" onclick="DR.go('home')">← back</button>
-    <div class="eyebrow label">Settings · keys stay on this device</div>
+    <div class="eyebrow label">Settings · stays on this device</div>
     <div class="h1" style="font-size:26px">Connect your accounts</div>
     <div class="field" style="margin-top:18px">
-      <label class="label" style="color:var(--mute)">ElevenLabs API key</label>
-      <input id="ek" type="password" placeholder="sk_..." value="${ek}">
-      <div class="hint">Powers the live voice call. From <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank">elevenlabs.io → Settings → API Keys</a>. Your plan's monthly agent-minutes are already included.</div>
+      <label class="label" style="color:var(--mute)">ElevenLabs Agent ID</label>
+      <input id="agid" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="agent_..." value="${ag}">
+      <div class="hint">Powers the live voice. In <a href="https://elevenlabs.io/app/agents" target="_blank">elevenlabs.io → Agents</a>, make one agent → open its <b>Security</b> tab → turn <b>off</b> authentication (makes it public) and turn <b>on</b> the System&nbsp;prompt, First&nbsp;message, Language &amp; Voice overrides → copy its ID here. It's public, so keep the ID unlisted.</div>
     </div>
     <div class="field">
       <label class="label" style="color:var(--mute)">Anthropic (Claude) API key</label>
@@ -436,7 +412,6 @@ function setupView(){
     </div>
     <div class="btn-row">
       <button class="btn" onclick="DR.saveKeys()">Save & continue</button>
-      ${LS.get("agentId","")?`<button class="btn ghost" onclick="DR.resetAgent()">Rebuild prospect agent (cheaper brain)</button>`:""}
     </div>`;
 }
 
@@ -532,12 +507,11 @@ const DR = {
   go,
   pick(id){ S.persona=PERSONAS.find(p=>p.id===id); S.transcript=[]; S.grade=null; S.earned=0; S.leveledUp=null; go("topic"); },
   saveKeys(){
-    const ek=document.getElementById("ek").value.trim(), ak=document.getElementById("ak").value.trim();
-    if(!ek||!ak){ toast("Both keys are needed."); return; }
-    LS.set("elevenKey",ek); LS.set("anthropicKey",ak);
+    const ag=document.getElementById("agid").value.trim(), ak=document.getElementById("ak").value.trim();
+    if(!ag||!ak){ toast("Both the Agent ID and Claude key are needed."); return; }
+    LS.set("agentId",ag); LS.set("anthropicKey",ak);
     toast("Saved ✓"); go("home");
   },
-  resetAgent(){ LS.set("agentId",""); toast("Agent will rebuild on next call."); render(); },
 
   async startCall(){
     const p=S.persona;
@@ -546,13 +520,13 @@ const DR = {
       await navigator.mediaDevices.getUserMedia({audio:true});
     }catch(e){ toast("Mic permission denied — needed for the call."); go("topic"); return; }
     let agentId;
-    try{ agentId=await ensureAgent(); }
+    try{ agentId=getAgentId(); }
     catch(e){ toast(e.message,5000); go("setup"); return; }
 
     try{
       S.conversation = await Conversation.startSession({
         agentId,
-        connectionType:"webrtc",
+        connectionType:"websocket",
         overrides:{
           agent:{ prompt:{ prompt:buildPrompt(p) }, firstMessage:p.first, language:"en" },
           tts:{ voiceId: p.gender==='male'?VOICE.male:VOICE.female }
