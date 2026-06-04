@@ -771,37 +771,8 @@ function showCaption(role,text){
 render();
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
 
-/* ---------- ambient call-signal background ---------- */
-(function(){
-  const c=document.getElementById("bg"); if(!c) return;
-  const x=c.getContext("2d"); let w=0,h=0,dpr=1,t=0,running=true;
-  function size(){ dpr=Math.min(window.devicePixelRatio||1,1.5); w=c.width=Math.floor(innerWidth*dpr); h=c.height=Math.floor(innerHeight*dpr); }
-  size(); addEventListener("resize",size);
-  document.addEventListener("visibilitychange",()=>{ running=!document.hidden; if(running) requestAnimationFrame(loop); });
-  const waves=[
-    {a:.085,f:.0016,s:.0055,y:.40,c:"255,90,31"},
-    {a:.06,f:.0023,s:-.004,y:.54,c:"255,122,71"},
-    {a:.045,f:.0012,s:.0085,y:.69,c:"54,211,153"}
-  ];
-  function loop(){
-    if(!running) return;
-    x.clearRect(0,0,w,h); t+=1;
-    for(const wv of waves){
-      x.beginPath();
-      for(let i=0;i<=w;i+=Math.max(6,8*dpr)){
-        const yy=wv.y*h + Math.sin(i*wv.f + t*wv.s)*wv.a*h + Math.sin(i*wv.f*2.4 + t*wv.s*1.7)*wv.a*h*.35;
-        if(i===0) x.moveTo(i,yy); else x.lineTo(i,yy);
-      }
-      x.strokeStyle="rgba("+wv.c+",0.45)"; x.lineWidth=1.2*dpr; x.stroke();
-    }
-    const r=h*0.5*(0.92+0.08*Math.sin(t*0.012));
-    const g=x.createRadialGradient(w/2,h*0.40,0,w/2,h*0.40,r);
-    g.addColorStop(0,"rgba(255,90,31,0.045)"); g.addColorStop(1,"rgba(255,90,31,0)");
-    x.fillStyle=g; x.fillRect(0,0,w,h);
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
-})();
+/* ---------- 3D call-signal background (Three.js · bg3d.js) ---------- */
+import('./bg3d.js').then(m=>m.initBackground()).catch(()=>{});
 </script>
 </body>
 </html>
