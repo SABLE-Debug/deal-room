@@ -106,6 +106,23 @@
   .modeline{font-size:13px;color:var(--mute);line-height:1.55;margin:0 0 16px;padding:0 2px}
   .modeline b{color:var(--orange-soft);font-weight:600}
 
+  /* Lions Den (blind / real tier) */
+  .lions{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid rgba(240,80,110,.4);background:linear-gradient(170deg,rgba(240,80,110,.1),rgba(240,80,110,.02));border-radius:13px;padding:12px 14px;margin:0 0 14px;transition:transform .12s,border-color .15s,background .15s}
+  .lions:active{transform:scale(.99)}
+  .lions.on{border-color:var(--red);background:linear-gradient(170deg,rgba(240,80,110,.22),rgba(240,80,110,.05));box-shadow:inset 0 0 0 1px rgba(240,80,110,.5)}
+  .lions .li{font-size:24px;line-height:1}
+  .lions .lt{flex:1}
+  .lions .lt .ln{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--ink)}
+  .lions .lt .ld{font-size:11.5px;color:var(--mute);margin-top:1px}
+  .lions .lx{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--red);border:1px solid rgba(240,80,110,.45);border-radius:20px;padding:4px 8px;white-space:nowrap}
+  .lions.on .lx{background:var(--red);color:#fff;border-color:var(--red)}
+  .blind{border:1px solid rgba(240,80,110,.4);background:linear-gradient(170deg,rgba(240,80,110,.08),transparent);border-radius:13px;padding:15px 16px;margin-bottom:6px}
+  .blind .blab{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+  .blind p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink)}
+  .blind p b{color:#fff;font-weight:600}
+  .r3.real .r3mode{color:var(--red)}
+  .r3.real .rbar i{background:linear-gradient(90deg,var(--red),#ff8fa0)}
+
   /* briefing */
   .brief{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
   .briefrow{position:relative;border:1px solid var(--line);background:var(--carbon-2);border-radius:13px;padding:14px 15px;overflow:hidden}
@@ -258,6 +275,7 @@ function rankProgress(xp){
 
 /* ---------- the three approaches (grounded in SPIN / product-led / Hormozi CLOSER × Challenger) ---------- */
 const MODE_ORDER = ["discovery","pitch","method"];
+const RANK_ORDER = ["discovery","pitch","method","lionsden"];
 const MODES = {
   discovery:{
     label:"Discovery", icon:"🔍", tag:"diagnose first",
@@ -300,6 +318,20 @@ const MODES = {
       {key:"close",      name:"Close",            desc:"Landed a commitment after the full flow, with the outcome made obvious"}
     ],
     oneFix:`wherever in the sequence they broke — pitched before diagnosing, skipped the reframe, or sold the tool instead of the outcome`
+  },
+  lionsden:{
+    label:"Lions Den", icon:"🦁", tag:"no intel · for real",
+    blurb:`Walk in blind — no briefing, no assigned approach. Just you, the framework in your head, and a real person. The truest test of all.`,
+    behavior:`You are a real person who just answered an unsolicited call from a stranger. Behave exactly as guarded, busy, curious or annoyed as a real person in your situation would — no script, no hand-holding. You have a real underlying problem in your world but you do NOT volunteer it; a stranger has to earn it with genuinely sharp questions and real listening. Throw the objections a real person would. Warm up only if they're actually good — and get colder if they pitch at you before they understand you. Decide naturally: commit to a concrete next step only if they truly earn it, otherwise wrap the call up like a busy person who has somewhere to be.`,
+    win:`Walk in blind and still get there — uncover the real problem through questions, sell the outcome that fixes it, handle what comes back, and earn a concrete next step. No intel, no assigned playbook, no excuses.`,
+    rubric:[
+      {key:"opening",    name:"Opening",          desc:"Opened a cold call well — credible, human, earned a few seconds"},
+      {key:"discovery",  name:"Discovery",        desc:"Uncovered the real problem from scratch, with no briefing to lean on"},
+      {key:"objections", name:"Objection Handling",desc:"Met the live objections directly instead of dodging or caving"},
+      {key:"value",      name:"Outcome Selling",  desc:"Sold the result that fixes their actual problem, not features"},
+      {key:"close",      name:"Close",            desc:"Earned a concrete next step, cold, on a real person"}
+    ],
+    oneFix:`the weakest link in your cold, no-intel flow — opening, uncovering the real problem, handling pushback, or closing`
   }
 };
 
@@ -514,15 +546,15 @@ function header(){
 }
 
 function ranks3(){
-  const rows = MODE_ORDER.map(mk=>{ const xp=getXP(mk); return {mk, m:MODES[mk], xp, rp:rankProgress(xp)}; });
+  const rows = RANK_ORDER.map(mk=>{ const xp=getXP(mk); return {mk, m:MODES[mk], xp, rp:rankProgress(xp)}; });
   const maxXp = Math.max(...rows.map(r=>r.xp));
   const minXp = Math.min(...rows.map(r=>r.xp));
   const weakMk = (maxXp>0 && minXp<maxXp) ? rows.find(r=>r.xp===minXp).mk : null;
   return `<div class="rankstrip ranks3">
     ${rows.map(r=>`
-      <div class="r3">
+      <div class="r3${r.mk==='lionsden'?' real':''}">
         <div class="r3top">
-          <span class="r3mode">${r.m.icon} ${r.m.label}${r.mk===weakMk?` <span class="weak">drill this</span>`:``}</span>
+          <span class="r3mode">${r.m.icon} ${r.m.label}${r.mk==='lionsden'?` · <span style="color:var(--red)">the real one</span>`:r.mk===weakMk?` <span class="weak">drill this</span>`:``}</span>
           <span class="r3rank">${r.rp.cur.name} <span class="r3meta">${r.rp.nxt?`${r.rp.have}/${r.rp.need}→${r.rp.nxt.name}`:'MAX'}</span></span>
         </div>
         <div class="rbar"><i style="width:${r.rp.pct}%"></i></div>
@@ -595,14 +627,24 @@ function topicView(){
     <div class="modeseg">
       ${MODE_ORDER.map(mk=>`<button class="${mk===S.mode?'on':''}" onclick="DR.setMode('${mk}')"><span class="mi">${MODES[mk].icon}</span>${MODES[mk].label}</button>`).join("")}
     </div>
+    <button class="lions ${S.mode==='lionsden'?'on':''}" onclick="DR.setMode('lionsden')">
+      <span class="li">🦁</span>
+      <div class="lt"><div class="ln">Lions Den</div><div class="ld">No intel. No briefing. The real call.</div></div>
+      <span class="lx">${S.mode==='lionsden'?'ACTIVE':'ENTER'}</span>
+    </button>
     <div class="modeline"><b>${m.label} — ${m.tag}.</b> ${m.blurb}</div>
 
+    ${S.mode==='lionsden' ? `
+    <div class="blind">
+      <div class="blab">🦁 You're going in blind</div>
+      <p>You're cold-calling <b>${p.name}</b> · <b>${p.role}</b> to sell <b>${p.sell}</b>. That's all you get — same as a real list. Their actual problem, their mood, their objections, whether they even need you: uncover it live, or hang up empty-handed.</p>
+    </div>` : `
     <div class="brief">
       <div class="briefrow"><div class="corner"></div><div class="blab">The company</div><p>${p.company}</p></div>
       <div class="briefrow"><div class="blab">The buyer</div><p>${p.buyer}</p></div>
       <div class="briefrow"><div class="blab">Their real issue</div><p>${p.issue}</p></div>
       <div class="briefrow sellrow"><div class="blab">What you're selling</div><p><b>${p.sell}.</b></p><div class="outcome2">What it really buys them: <b>${p.valueAngle}</b></div></div>
-    </div>
+    </div>`}
 
     <div class="btn-row" style="margin-top:16px">
       <button class="btn" onclick="DR.startCall()">📞 Start the call · ${m.label}</button>
