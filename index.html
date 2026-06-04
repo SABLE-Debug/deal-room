@@ -43,18 +43,28 @@
   .h1{font-family:var(--serif);font-size:32px;line-height:1.05;font-weight:600;margin:2px 0 4px}
   .sub{color:var(--mute);font-size:13.5px;line-height:1.5;margin-bottom:18px}
 
-  /* rank strip + progression */
-  .rankstrip{border:1px solid var(--line);background:linear-gradient(170deg,var(--panel),var(--carbon-2));border-radius:12px;padding:12px 14px;margin-bottom:16px}
+  /* rank strip */
+  .rankstrip{border:1px solid var(--line);background:linear-gradient(170deg,var(--panel),var(--carbon-2));border-radius:12px;padding:13px 15px;margin-bottom:16px}
   .rankstrip .rtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:10px}
   .rankstrip .rname{font-family:var(--serif);font-size:18px;font-weight:600}
   .rankstrip .rnext{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);text-align:right}
-  .rankstrip .rbar{height:6px;background:var(--line);border-radius:4px;overflow:hidden}
-  .rankstrip .rbar i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),var(--orange-soft));border-radius:4px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .rbar{height:6px;background:var(--line);border-radius:4px;overflow:hidden}
+  .rbar i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),var(--orange-soft));border-radius:4px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+
+  /* 3-mode rank strip (home) */
+  .ranks3{display:flex;flex-direction:column;gap:13px}
+  .r3 .r3top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+  .r3 .r3mode{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:6px}
+  .r3 .r3rank{font-family:var(--serif);font-size:15px;font-weight:600;color:var(--ink);display:flex;align-items:baseline;gap:7px}
+  .r3 .r3meta{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;color:var(--faint)}
+  .r3 .rbar{height:5px}
+  .weak{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;color:var(--amber);border:1px solid rgba(242,193,78,.35);border-radius:20px;padding:2px 7px}
 
   /* persona grid */
   .grid{display:flex;flex-direction:column;gap:11px;padding-bottom:30px}
   .card{position:relative;border:1px solid var(--line);background:linear-gradient(170deg,var(--panel),var(--carbon-2));border-radius:14px;padding:15px 15px 14px;overflow:hidden;transition:border-color .18s,transform .12s}
   .card:active{transform:scale(.992)}
+  .card:hover{border-color:rgba(255,90,31,.3)}
   .card .corner{position:absolute;top:0;right:0;width:30px;height:30px;border-top:1px solid var(--line);border-right:1px solid var(--line);border-top-right-radius:14px}
   .card .corner::after{content:"";position:absolute;top:6px;right:6px;width:4px;height:4px;background:var(--orange);border-radius:50%}
   .card .cname{font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.1}
@@ -75,12 +85,29 @@
   .field input:focus{outline:none;border-color:var(--orange)}
   .field .hint{font-size:11.5px;color:var(--faint);margin-top:6px;line-height:1.45}
   .field .hint a{color:var(--orange-soft);text-decoration:none}
-  .btn{display:block;width:100%;text-align:center;background:var(--orange);color:#140a04;font-weight:600;font-size:15px;padding:15px;border-radius:11px;letter-spacing:.01em}
-  .btn:active{background:var(--orange-soft)}
+  .btn{display:block;width:100%;text-align:center;background:var(--orange);color:#140a04;font-weight:600;font-size:15px;padding:15px;border-radius:11px;letter-spacing:.01em;transition:background .15s,transform .12s}
+  .btn:active{background:var(--orange-soft);transform:scale(.99)}
   .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:500}
   .btn.ghost:active{border-color:var(--orange)}
   .btn[disabled]{opacity:.5;pointer-events:none}
   .btn-row{display:flex;flex-direction:column;gap:10px;padding-bottom:34px;margin-top:4px}
+
+  /* mode toggle (segmented) */
+  .modeseg{display:flex;gap:6px;background:var(--carbon-2);border:1px solid var(--line);border-radius:13px;padding:5px;margin:6px 0 14px}
+  .modeseg button{flex:1;padding:11px 4px;border-radius:9px;font-family:var(--sans);font-size:12px;font-weight:600;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s}
+  .modeseg button .mi{font-size:17px;line-height:1}
+  .modeseg button.on{background:linear-gradient(170deg,rgba(255,90,31,.2),rgba(255,90,31,.05));color:var(--ink);box-shadow:inset 0 0 0 1px rgba(255,90,31,.45)}
+  .modeline{font-size:13px;color:var(--mute);line-height:1.55;margin:0 0 16px;padding:0 2px}
+  .modeline b{color:var(--orange-soft);font-weight:600}
+
+  /* briefing */
+  .brief{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
+  .briefrow{position:relative;border:1px solid var(--line);background:var(--carbon-2);border-radius:13px;padding:14px 15px;overflow:hidden}
+  .briefrow .blab{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--orange-soft);margin-bottom:7px}
+  .briefrow p{margin:0;font-size:13.5px;line-height:1.55;color:var(--ink)}
+  .briefrow p b{color:#fff;font-weight:600}
+  .briefrow .outcome2{margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);color:var(--mute);font-size:13px;line-height:1.5}
+  .briefrow .outcome2 b{color:var(--green);font-weight:500}
 
   /* call screen */
   .call{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;padding-bottom:30px}
@@ -100,9 +127,6 @@
   .captions .src{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:3px}
   .endbtn{margin-top:34px;background:var(--red);color:#fff;font-weight:600;font-size:15px;padding:15px 40px;border-radius:40px;display:inline-flex;align-items:center;gap:9px}
   .endbtn:active{filter:brightness(1.1)}
-  .topiccard{border:1px solid var(--line);background:var(--carbon-2);border-radius:13px;padding:16px;margin:14px 0 6px;max-width:480px}
-  .topiccard .label{margin-bottom:7px}
-  .topiccard p{margin:0;font-size:14.5px;line-height:1.55;color:var(--ink)}
 
   /* results */
   .outcome{display:flex;flex-direction:column;align-items:center;text-align:center;margin:10px 0 4px}
@@ -118,6 +142,7 @@
   .metric{margin-bottom:15px}
   .metric .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
   .metric .mname{font-size:13.5px;font-weight:500}
+  .metric .mdesc{font-size:11px;color:var(--faint);margin-top:1px}
   .metric .mval{font-family:var(--mono);font-size:12px;color:var(--mute)}
   .bar{height:5px;background:var(--line);border-radius:4px;overflow:hidden}
   .bar i{display:block;height:100%;background:var(--orange);border-radius:4px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
@@ -151,13 +176,7 @@ const LS = {
   set:(k,v)=>localStorage.setItem("dr_"+k,JSON.stringify(v))
 };
 
-/* ---------- voices (ElevenLabs premade — universal IDs) ---------- */
-const VOICE = {
-  male:   "nPczCjzI2devNBz1zQrb",   // Brian — natural, warm American male
-  female: "EXAVITQu4vr4xnSDxMaL"    // Sarah — natural, conversational female
-};
-
-/* ---------- progression: only CLOSING moves you up ---------- */
+/* ---------- progression: only CLOSING moves you up — separate ladder per mode ---------- */
 const RANKS = [
   {name:"Greenhorn",    at:0},
   {name:"Cold Caller",  at:3},
@@ -169,8 +188,8 @@ const RANKS = [
   {name:"The Closer",   at:90}
 ];
 const DIFF_PTS = { warm:1, hard:2, brutal:3 };
-const getXP = ()=> LS.get("xp",0);
-const getCloses = ()=> LS.get("closes",0);
+const getXP = mode => LS.get("xp_"+mode,0);
+const getCloses = mode => LS.get("closes_"+mode,0);
 const rankAt = xp => { let r=RANKS[0]; for(const x of RANKS) if(xp>=x.at) r=x; return r; };
 const nextRankAt = xp => { for(const x of RANKS) if(x.at>xp) return x; return null; };
 function rankProgress(xp){
@@ -180,164 +199,242 @@ function rankProgress(xp){
   return {cur, nxt, pct:Math.max(3,Math.round(into/span*100)), have:into, need:span};
 }
 
-/* ---------- prospect roster ---------- */
+/* ---------- the three approaches (grounded in SPIN / product-led / Hormozi CLOSER × Challenger) ---------- */
+const MODE_ORDER = ["discovery","pitch","method"];
+const MODES = {
+  discovery:{
+    label:"Discovery", icon:"🔍", tag:"diagnose first",
+    blurb:`Diagnose before you prescribe — ask, uncover the real pain, earn the right to sell.`,
+    behavior:`You are guarded and busy. You do NOT volunteer your real problem — you give a vague, surface version ("things are fine, just a bit hectic") and make the seller earn the truth. You warm up ONLY when a question shows they actually understand your world; when that happens, reveal one more layer. If the seller pitches their product, names features, or says "we can help with that" before they've diagnosed you, get visibly colder, shorter, more skeptical — and retreat to a surface answer. Reward specific, situational questions about how you operate, what it costs you, and what happens if it continues. Never hand over the real pain unprompted — they have to ask the question that unlocks it. If they reflect your pain back accurately, confirm it and lean in. Only agree to a next step if it's tied to the specific problem you actually admitted.`,
+    win:`Surface the prospect's true underlying pain through questions, reflect it back accurately, and earn a concrete next step built around that specific pain.`,
+    rubric:[
+      {key:"opening",     name:"Opening",         desc:"Earned the right to ask — credible, low-pressure, didn't pitch in the first breath"},
+      {key:"questioning", name:"Questioning",     desc:"Quality + sequence: situation → problem → consequence, not an interrogation"},
+      {key:"diagnosis",   name:"Pain Diagnosis",  desc:"Got past the surface complaint to the real issue and its cost"},
+      {key:"listening",   name:"Active Listening",desc:"Reflected the pain back in the prospect's own terms"},
+      {key:"close",       name:"Close",           desc:"Earned a next step anchored to the diagnosed pain"}
+    ],
+    oneFix:`the seller's questioning and diagnosis — whether their questions moved from surface to root cause, or they pitched before they understood`
+  },
+  pitch:{
+    label:"Pitch", icon:"🎯", tag:"sell the outcome",
+    blurb:`Lead with the product — land a tight pitch, handle the objections, close on value.`,
+    behavior:`You already roughly know what you need and you're time-pressed — you want a crisp, outcome-focused pitch fast. Within the first minute, press them: "okay, what is this, why should I care?" Throw realistic objections — price, "we already have something", "no time to switch", "how do I know it works" — and throw a NEW one each time they resolve the last. Reward tight positioning, confidence, and a clear outcome; go cold on rambling, feature-dumps, hedging, or jargon. If they list features instead of what those features DO for you, push back: "and that gets me what?" If they handle an objection cleanly and tie it to your result, soften and move forward. Only commit once they've made the value obvious and answered your real objection — not deflected it.`,
+    win:`Deliver a tight, outcome-focused pitch, handle the objections head-on, and close on the value rather than the feature list.`,
+    rubric:[
+      {key:"opening",    name:"Opening",          desc:"Grabbed attention and set up the pitch fast, without burning patience"},
+      {key:"clarity",    name:"Pitch Clarity",    desc:"Tight and easy to follow, not rambling or overloaded"},
+      {key:"objections", name:"Objection Handling",desc:"Met each objection directly and resolved it, instead of dodging or caving"},
+      {key:"value",      name:"Value Framing",    desc:"Sold the outcome / result, not a list of features"},
+      {key:"close",      name:"Close",            desc:"Asked for the commitment and closed on the value established"}
+    ],
+    oneFix:`the pitch and positioning — whether they sold a clear outcome tightly, or buried it under features and rambling`
+  },
+  method:{
+    label:"The Method", icon:"🏆", tag:"the full GOAT flow",
+    blurb:`The full GOAT flow — diagnose, reframe, sell the outcome, then close.`,
+    behavior:`You respond to the WHOLE sequence, in order, and you penalize skipped steps. Start guarded: give a vague reason for taking the call and make them clarify why you're really open to this. When they label your pain — say it back sharper than you could yourself — react strongly and open up. Let them overview what you've already tried, and confirm or correct it. If they teach you something or reframe the problem in a way you hadn't seen, respect it and engage harder — this is what earns the sale. You only get genuinely interested when they sell the OUTCOME (the result in your world, "the vacation"), not the mechanics ("the plane flight"). Raise real concerns near the end and expect them explained away, not dodged. CRITICAL: if they pitch the product or list features BEFORE diagnosing and reframing, OR sell the tool instead of the outcome, go cold and resist the close. Only commit if they've run the full flow and the outcome is obvious.`,
+    win:`Run the full sequence — diagnose and label the pain, reframe with an insight, sell the tailored outcome, explain away concerns — and close.`,
+    rubric:[
+      {key:"diagnosis",  name:"Diagnosis",        desc:"Clarify + label: uncovered the real why and said the pain back sharper than they could"},
+      {key:"reframe",    name:"Reframe / Insight",desc:"Taught the prospect something or reframed the problem, not just agreed"},
+      {key:"outcome",    name:"Outcome Selling",  desc:"Sold the result in the prospect's world (the vacation), not the mechanics"},
+      {key:"objections", name:"Objection Handling",desc:"Explained away the real concerns directly instead of dodging"},
+      {key:"close",      name:"Close",            desc:"Landed a commitment after the full flow, with the outcome made obvious"}
+    ],
+    oneFix:`wherever in the sequence they broke — pitched before diagnosing, skipped the reframe, or sold the tool instead of the outcome`
+  }
+};
+
+/* ---------- prospect roster (each with its own voice + deep scenario) ---------- */
 const PERSONAS = [
   {
     id:"marcus", name:"Marcus Hale", role:"CFO · 40-location HVAC roll-up", gender:"male",
-    difficulty:"brutal",
+    difficulty:"brutal", voiceId:"nPczCjzI2devNBz1zQrb",
     personality:"impatient, numbers-first, allergic to fluff and small talk",
     mood:"you caught him walking between back-to-back meetings",
-    pain:"his location managers all report numbers differently — he can't trust a single consolidated figure and the board meeting is in two weeks",
     objections:["I've already got a guy for that","Just email me something","What does this actually cost","We literally just paid for ServiceTitan"],
-    winCondition:"he only thaws if you quantify — in dollars or hours — what the messy, inconsistent reporting is costing him, and you do it fast without a pitch",
     sell:"an AI layer that normalizes all 40 locations into one board-ready operating view",
+    company:`A PE-backed HVAC roll-up that's acquired 40 independent contractors across the Southeast over three years — ~1,200 field techs, ~$180M combined revenue. Each location still runs its own books, software and definitions; integration is half-finished and the sponsor is watching margins.`,
+    buyer:`Marcus Hale, the CFO brought in to make the roll-up legible to the board and the PE sponsor. Numbers-paranoid, skeptical of vendors promising "one source of truth", braced for another tool that adds work instead of removing it.`,
+    issue:`All 40 locations report revenue, margin and overhead differently — one books a job at sale, another at completion, a third nets out materials — so the consolidated number he hands the board is a guess he can't defend. Board meeting in two weeks; he's reconciling spreadsheets at night, and a wrong figure in front of the sponsor risks his credibility and the next tranche of funding.`,
+    valueAngle:`He walks into the board meeting with one operating figure he can defend line by line — and gets his nights back instead of reconciling 40 spreadsheets by hand.`,
     first:"Hale."
   },
   {
     id:"priya", name:"Priya Sharma", role:"Founder & CEO · seed-stage SaaS", gender:"female",
-    difficulty:"hard",
+    difficulty:"hard", voiceId:"cgSgspJ2msm6clMCkdW9",
     personality:"sharp, skeptical, has heard every pitch, tests whether you actually understand her business",
     mood:"mildly annoyed she picked up an unknown number",
-    pain:"she's drowning in support tickets and her two engineers are buried instead of shipping",
     objections:["We're pre-revenue, we can't spend","Why wouldn't I just build this myself","How are you different from Intercom","I don't have time for a demo"],
-    winCondition:"she engages only if you show you understand the founder's real tradeoff — eng time vs growth — and tie your thing to freeing her engineers, not 'features'",
     sell:"a done-for-you AI support layer that deflects 60% of tickets",
+    company:`A seed-stage B2B SaaS doing project management for trades — ~$400K ARR, ~600 paying accounts, raised 14 months ago. Five people total: Priya, two engineers, a designer, a generalist. The burn clock is running and the next raise depends on shipping the roadmap.`,
+    buyer:`Priya Sharma, technical founder-CEO who still reviews every release. She cares about runway and velocity above all, and is wary of anything that sounds like handing her product's voice to a bot that'll anger customers.`,
+    issue:`Inbound support tickets have outgrown the team — her two engineers spend a third of each week answering "how do I" tickets instead of building, so the roadmap slips and the next raise gets riskier. Most tickets are the same dozen questions, but every one pulls an engineer out of deep work. She's paying engineer salaries to do tier-1 support.`,
+    valueAngle:`Her engineers get their week back to ship the roadmap the next raise depends on — while customers still get fast, accurate answers, without her hiring a support team she can't afford.`,
     first:"Hello, who's this?"
   },
   {
     id:"dale", name:"Dale Brennan", role:"Owner · independent plumbing co.", gender:"male",
-    difficulty:"warm",
+    difficulty:"warm", voiceId:"bIHbv24MWmeRgasZH58o",
     personality:"friendly, chatty, easily distracted, agrees with everything then ghosts — the real challenge is pinning him to a commitment",
     mood:"relaxed, between jobs, happy to talk",
-    pain:"he misses half his inbound calls because he's under a sink, and those are lost jobs",
     objections:["Yeah that sounds great, send me info","I'm not really a tech guy","My nephew kinda handles the website","Let me think about it and call you back"],
-    winCondition:"he's easy to get talking but hard to close — you only win if you get a SPECIFIC next commitment (a time, a card, a yes) before he wanders off",
     sell:"an AI receptionist that answers every missed call and books the job",
+    company:`A one-truck independent plumbing business, owner-operated, ~$220K/year, one metro. No office staff — Dale is the plumber, the dispatcher and the bookkeeper. Most jobs come from word-of-mouth and Google searches that turn into phone calls.`,
+    buyer:`Dale Brennan, hands-on owner who'd rather be on the tools than on the phone. He cares about not leaving money on the table, isn't techy, and is open but allergic to anything complicated or expensive.`,
+    issue:`He misses roughly half his inbound calls because he's under a sink with his hands full — and a missed call is a customer who just dials the next plumber on the list. At ~$350 a ticket, even three missed bookable calls a week is $40K–$50K a year in jobs walking out the door he never knew rang.`,
+    valueAngle:`Every call gets answered and the bookable ones land on his calendar as scheduled jobs — so he stops bleeding work to the next guy on Google while he's elbow-deep under a sink.`,
     first:"Yello, Dale here."
   },
   {
     id:"eleanor", name:"Eleanor Vance", role:"VP Procurement · enterprise", gender:"female",
-    difficulty:"brutal",
+    difficulty:"brutal", voiceId:"Xb7hH8MSUJpSbSDYk0k2",
     personality:"cold, procedural, gives nothing away, makes you do all the work, weaponizes silence",
     mood:"neutral, guarded, treating this as a box to tick",
-    pain:"(she will not volunteer it) her team manages 200+ vendor contracts in spreadsheets and renewals slip through, costing real money",
     objections:["Send it through our portal","We have a preferred-vendor process","What's your security posture","I can't discuss budget"],
-    winCondition:"she gives nothing unless you ask sharp, specific questions that make HER reveal the pain — you win by out-discovering her silence, never by pitching",
     sell:"an AI contract-renewal tracker that flags every slip before it costs them",
+    company:`A large enterprise (~6,000 employees) whose procurement team manages vendor relationships across the whole org — hundreds of active suppliers, contracts from SaaS seats to facilities. Procurement is a cost center under constant pressure to prove savings.`,
+    buyer:`Eleanor Vance, VP of Procurement, measured on realized savings and risk. Process-driven, burned before by tools that don't survive contact with her real data — polite but hard to impress and quick to spot hand-waving.`,
+    issue:`Her team tracks 200+ vendor contracts and renewal dates in spreadsheets, so renewals quietly slip past the notice window — auto-renewing at last year's price or missing the point to renegotiate. Each miss forfeits leverage and locks in spend; across the portfolio the slippage costs an estimated $300K–$500K a year in savings left on the table.`,
+    valueAngle:`Every renewal surfaces early enough to actually negotiate — turning the savings her team currently forfeits into numbers she can take to the CFO as proof procurement pays for itself.`,
     first:"This is Eleanor Vance."
   },
   {
     id:"tariq", name:"Tariq Mensah", role:"Owner · 3-location restaurant group", gender:"male",
-    difficulty:"hard",
+    difficulty:"hard", voiceId:"iP95p4xoKVk53GoZ742B",
     personality:"gruff, been burned by software vendors before, deeply protective of his staff and his margins",
     mood:"tired, the lunch rush just ended and he is wiping down a counter",
-    pain:"online orders pour in across three different delivery apps and his kitchen staff are drowning trying to track them all",
     objections:["Every vendor promises me the world","My staff can barely use the till as it is","What's this gonna do to my margins","I'm short-staffed, I can't train on new tech"],
-    winCondition:"he only opens up if you show real respect for his staff's time and prove it protects his margin — talk to him like an operator, not a mark",
     sell:"an AI that pulls every delivery-app order into one simple kitchen screen",
+    company:`A three-location regional restaurant group — fast-casual, busy lunch and dinner, thin margins, high volume. Delivery is now a meaningful share of revenue, spread across three different delivery apps plus their own online ordering.`,
+    buyer:`Tariq Mensah, owner-operator who runs the floor and knows his food cost to the cent. He cares about throughput and not losing orders, and is skeptical of "tech" because the delivery apps already take a big cut and he resents paying for more.`,
+    issue:`Orders pour in simultaneously across three delivery-app tablets plus phone, and kitchen staff burn attention bouncing between screens — missing tickets, mis-timing food, eating the cost of remakes and refunds. During a rush a missed order means a refund, a bad rating, and a customer who orders elsewhere next time.`,
+    valueAngle:`Every order from every app lands on one kitchen screen in the right order — so the line stops dropping tickets in the rush. Fewer refunds, faster food, staff cooking instead of babysitting tablets.`,
     first:"Yeah, Tariq."
   },
   {
     id:"brenda", name:"Brenda Okafor", role:"Owner · boutique clothing shop", gender:"female",
-    difficulty:"warm",
+    difficulty:"warm", voiceId:"EXAVITQu4vr4xnSDxMaL",
     personality:"lovely and talkative, deeply risk-averse with money, loyal to how she has always done things",
     mood:"calm, it's a quiet afternoon and she's happy for the company",
-    pain:"she's quietly losing sales to bigger online stores and has no idea where her customers go when they leave",
     objections:["Oh I'm not techy at all","My customers love coming into the shop","Is something like this expensive","My daughter usually sorts out the computer side"],
-    winCondition:"she needs to feel it's SAFE and low-risk and tied to keeping her shop alive — warmth is easy, a concrete yes is the whole challenge",
     sell:"an AI that turns her Instagram into a shop customers can buy from directly",
+    company:`A single-location boutique clothing shop with a loyal local following and a decent Instagram she posts to herself. Small operation — Brenda plus a couple of part-timers. Revenue is mostly in-store, with the occasional sale via DM.`,
+    buyer:`Brenda Okafor, owner with real taste and a personal relationship with her regulars. She cares about her shop surviving, isn't anti-tech, just stretched thin — warm, a little overwhelmed, unsure why her online efforts don't convert.`,
+    issue:`She's quietly losing sales to bigger online stores and can't see where her customers go — people browse her Instagram, double-tap, then buy similar items elsewhere because there's no way to buy from her directly. Every post that drives admiration but no sale is demand she generated and handed to a competitor — and she can't even size it.`,
+    valueAngle:`The Instagram following she already built turns into a place people actually buy from in a couple of taps — so the demand she creates with every post lands in her own register, not the big stores'.`,
     first:"Hello, Brenda speaking!"
   },
   {
     id:"alan", name:"Dr. Alan Reeves", role:"Owner · private medical practice", gender:"male",
-    difficulty:"brutal",
+    difficulty:"brutal", voiceId:"cjVigY5qzO86Huf0OWal",
     personality:"precise, intellectually arrogant, distrusts salespeople on principle, demands evidence for every claim",
     mood:"clipped and impatient, he has a patient in four minutes",
-    pain:"patient no-shows are wrecking his schedule and his revenue, and nothing he's tried has fixed it",
     objections:["Where is your clinical evidence","We already tried reminders, didn't work","How are you handling patient data","I have a practice manager for this sort of thing"],
-    winCondition:"he respects only precision — you win by meeting his evidence and data-privacy bar head-on and quantifying the no-show revenue, with zero fluff",
     sell:"an AI scheduler that cuts no-shows with smart, adaptive reminders",
+    company:`A small private medical practice (two physicians, a handful of staff) running a full appointment book. Revenue is per-visit, so an empty chair is unrecoverable income. Established patient base, but scheduling runs on a basic system plus reminder calls.`,
+    buyer:`Dr. Alan Reeves, physician-owner who carries the financial risk personally. He cares about a full, smooth schedule, has tried reminder tools that didn't move the needle — frustrated, time-poor, openly skeptical anything new will work.`,
+    issue:`Patient no-shows are wrecking his schedule and his revenue — empty slots that can't be backfilled on short notice, plus staff time wasted chasing confirmations. Each empty visit is lost revenue he'll never recover, adding up to tens of thousands a year, and nothing he's tried has meaningfully reduced it.`,
+    valueAngle:`His chairs stay full because the reminders actually change behavior — recovering the visits he's currently writing off and giving his staff back the hours they burn chasing confirmations.`,
     first:"Dr. Reeves, yes?"
   },
   {
     id:"mei", name:"Mei Lin", role:"Head of Ops · logistics startup", gender:"female",
-    difficulty:"hard",
+    difficulty:"hard", voiceId:"FGY2WhTYpPnrIDTdsKH5",
     personality:"data-driven, very sharp, polite but ruthless with her time, will not move without ROI",
     mood:"neutral, clearly doing three things at once",
-    pain:"manual dispatch scheduling is breaking as they scale and every error costs a missed delivery window",
     objections:["Send me the ROI numbers","We're mid-migration on another system","How long does integration take","Who else in logistics is using you"],
-    winCondition:"she moves only on quantified ROI plus a credible, low-friction integration story — respect her time and lead with the number",
     sell:"an AI dispatch optimizer that schedules routes automatically",
+    company:`A venture-backed last-mile logistics startup, growing fast, moving from a handful of drivers to a fleet across several zones. Tech-forward culture, but dispatch is still a manual bottleneck. Every delivery promise is an SLA they're judged on.`,
+    buyer:`Mei Lin, Head of Ops, responsible for keeping delivery promises as volume climbs. Data-literate, scaling-obsessed — interested but rigorous, she'll want to know exactly how it handles her real constraints, not a demo-world version.`,
+    issue:`Dispatch scheduling is still done by hand and it's breaking as they scale — a human assigning routes can't keep up, and every scheduling error becomes a missed delivery window, an SLA breach, an unhappy customer. The manual process also caps growth: more volume means more dispatchers and a compounding error rate.`,
+    valueAngle:`Routes schedule themselves accurately as volume climbs — so she keeps her delivery promises while growing, without the manual dispatch desk becoming the thing that caps the company.`,
     first:"Mei here, go ahead."
   },
   {
     id:"chuck", name:"Chuck Donnelly", role:"Owner · general contracting firm", gender:"male",
-    difficulty:"brutal",
+    difficulty:"brutal", voiceId:"pqHfZKP75CvOlQylNhV4",
     personality:"blunt, proud, thirty years on the tools, thinks AI is hype and salespeople are a waste of his day",
     mood:"irritated, he's standing on a noisy job site",
-    pain:"he loses bids because his estimating is slow, and he's buried in paperwork every night instead of at home",
     objections:["I've built for thirty years without a computer telling me prices","A robot can't price a real job","How much is this gonna run me","I don't got time for a demo on a site"],
-    winCondition:"he shuts down anyone who condescends — you win by respecting his experience and tying it to winning more bids, the money he's leaving on the table",
     sell:"an AI that turns a set of plans into a fast, accurate estimate",
+    company:`A mid-sized general contracting firm bidding commercial and residential projects. Solid reputation, healthy pipeline of bid invitations — but win rate is capped by how fast and how many bids they can turn around against firms chasing the same jobs.`,
+    buyer:`Chuck Donnelly, owner who came up through the trades and still does estimates himself at night. He cares about winning more work without drowning — blunt, time-starved, impatient with anything that sounds like software fluff.`,
+    issue:`Estimating is slow and manual — he reads plans and builds takeoffs by hand, so he only gets to a fraction of the bids he's invited to, and those are late nights that wreck his week. Every bid he can't turn around in time is a job awarded to a competitor, and rushed numbers erode margin when he does win.`,
+    valueAngle:`Plans turn into a fast, accurate estimate — so he bids more jobs without losing his nights, gets more shots at winning work, and keeps numbers tight enough to protect his margin.`,
     first:"Donnelly. What is it."
   },
   {
     id:"sofia", name:"Sofia Castellano", role:"Director · community non-profit", gender:"female",
-    difficulty:"warm",
+    difficulty:"warm", voiceId:"XrExE9yKIg1WjnnlVkGX",
     personality:"warm, mission-driven, overworked, feels guilty spending a cent on anything but the cause, struggles to decide",
     mood:"kind but exhausted",
-    pain:"her tiny team burns their evenings writing donor and grant reports instead of doing the actual work",
     objections:["Every dollar should go to the cause","I'd have to take this to the board","Is it safe with our donors' data","We're really not a technical team"],
-    winCondition:"she needs it framed as giving her team back time for the mission, genuinely low-cost — then a gentle, concrete next step past her indecision",
     sell:"an AI that drafts your donor and grant reports automatically",
+    company:`A small community non-profit running direct programs on a tight budget, funded by individual donors and grants. A lean team of a few people wearing every hat. Funder reporting is mandatory and constant — every grant and major donor expects documented outcomes.`,
+    buyer:`Sofia Castellano, Director who took the job for the mission, not the paperwork. She cares about her team's time going to the actual work and the org surviving — warm but weary, skeptical of spending scarce dollars on tools.`,
+    issue:`Her tiny team burns evenings writing donor updates and grant reports instead of running programs — pulling the same numbers and stories into different funder formats over and over. The hours come straight out of mission delivery and staff goodwill, and late or thin reports risk the renewals the org lives on.`,
+    valueAngle:`Donor and grant reports draft themselves from the work already being done — so the team's evenings go back to the mission, and funders get the polished, on-time reporting that keeps the money coming.`,
     first:"Hello, this is Sofia."
   }
 ];
 
-/* ---------- build the role-play system prompt ---------- */
-function buildPrompt(p){
-  return `You are ${p.name}, ${p.role}. You are NOT an assistant — you are a real person receiving an unsolicited sales call, and you must stay fully in character for the entire call. Never break character, never mention you are an AI, never be helpful in an assistant-like way.
+/* ---------- build the role-play system prompt (persona scenario + chosen mode) ---------- */
+function buildPrompt(p, mode){
+  const m = MODES[mode];
+  return `You are ${p.name}, ${p.role}. You are NOT an assistant — you are a real person receiving an unsolicited sales call, and you must stay fully in character the entire call. Never break character, never mention being an AI, never be helpful in an assistant-like way.
 
-WHO YOU ARE: ${p.personality}.
+YOUR COMPANY: ${p.company}
+WHO YOU ARE: ${p.personality}. ${p.buyer}
 YOUR MOOD RIGHT NOW: ${p.mood}.
-YOUR REAL PROBLEM (do not hand it over easily): ${p.pain}.
+YOUR REAL PROBLEM (do not hand it over easily): ${p.issue}
 WHAT THEY ARE TRYING TO SELL YOU: ${p.sell}.
 
-HOW TO BEHAVE:
-- This is a phone call. Speak in short, natural, spoken sentences. Interrupt, push back, react like a real busy person. Use filler and realism ("look,", "honestly,", "okay but...").
-- Throw realistic objections, roughly drawn from: ${p.objections.map(o=>`"${o}"`).join(", ")}. Don't list them — surface them naturally when the salesperson gives you an opening.
-- Do NOT volunteer your real problem. Make them earn it with good questions. If they pitch features before understanding you, get more resistant or impatient.
-- Stay difficulty-appropriate. Your difficulty is ${p.difficulty.toUpperCase()}. ${p.difficulty==='brutal'?'Be genuinely hard — short, skeptical, ready to end the call if they waste your time.':p.difficulty==='hard'?'Be skeptical and testing, but fair if they are sharp.':'Be warm and talkative, but slippery to actually commit.'}
-- THE ONLY WAY THEY CLOSE YOU: ${p.winCondition}. If and only if they genuinely earn it, gradually warm up and AGREE to a concrete next step — a booked meeting, a trial, a signature, or handing over your real contact with clear intent. When you truly agree, say it plainly, e.g. "alright, let's set it up" or "okay, send me the contract." Never agree out of politeness — only when earned.
-- This is a real call with a natural arc — reach a decision. Don't loop forever: after a fair exchange, either commit (if earned) or move to wrap the call up. Keep your turns to 1–3 sentences, a fast back-and-forth, not a monologue.`;
+HOW TO PLAY THIS CALL — ${m.label.toUpperCase()} MODE (${m.tag}):
+${m.behavior}
+
+GENERAL REALISM:
+- This is a phone call. Speak in short, natural, spoken sentences. React like a real busy person; use filler ("look,", "honestly,", "okay but..."). Keep your turns to 1–3 sentences — fast back-and-forth, never a monologue.
+- Throw realistic objections, drawn naturally from: ${p.objections.map(o=>`"${o}"`).join(", ")}. Don't list them — surface them when the salesperson gives you an opening.
+- Your difficulty is ${p.difficulty.toUpperCase()}: ${p.difficulty==='brutal'?'be genuinely hard — short, skeptical, ready to end the call if they waste your time.':p.difficulty==='hard'?'be skeptical and testing, but fair if they are sharp.':'be warm and talkative, but slippery to actually commit.'}
+- HOW THEY WIN: ${m.win} If and only if they genuinely earn it, gradually warm up and AGREE to a concrete next step, said plainly ("alright, let's set it up" / "okay, send me the contract"). Never agree out of politeness — only when earned. After a fair exchange, reach a decision: commit if earned, or move to wrap the call up. Don't loop forever.`;
 }
 
-/* ---------- Anthropic grading + close detection ---------- */
-async function gradeCall(persona, transcript){
+/* ---------- Anthropic grading (per-mode rubric) ---------- */
+async function gradeCall(persona, mode, transcript){
   const key = LS.get("anthropicKey","");
   if(!key) throw new Error("No Anthropic key set.");
+  const m = MODES[mode];
   const convo = transcript.map(t=>`${t.role==='me'?'SALESPERSON':persona.name.toUpperCase()}: ${t.text}`).join("\n");
-  const sys = `You are an elite sales coach grading a cold call. The SALESPERSON was practicing selling "${persona.sell}" to ${persona.name} (${persona.role}), a ${persona.difficulty} prospect whose hidden win-condition was: ${persona.winCondition}.
+  const metricSpec = m.rubric.map(r=>`"${r.key}":<1-10>`).join(",");
+  const rubricDesc = m.rubric.map(r=>`- ${r.name}: ${r.desc}`).join("\n");
+  const sys = `You are an elite sales coach grading a practice cold call run in ${m.label.toUpperCase()} mode (${m.tag}). The SALESPERSON was selling "${persona.sell}" to ${persona.name} (${persona.role}), a ${persona.difficulty} prospect.
 
-Grade ONLY the salesperson. Be honest and specific — this is training, flattery is useless.
+In ${m.label} mode the seller wins by: ${m.win}
+
+Grade ONLY the salesperson, on THESE metrics (each 1-10):
+${rubricDesc}
+
+Be honest and specific — this is training, flattery is useless.
 
 "closed" = did the prospect GENUINELY agree to a concrete next step (a booked meeting/demo with real intent, a trial or purchase yes, a signature, or handing over real contact info to proceed)? Mere interest, "send me info", "I'll think about it", or just warming up is NOT a close. Be strict — a real close has to be earned.
 
 Reply with STRICT JSON only, no prose, no markdown:
-{"closed":<true|false>,"opening":<1-10>,"discovery":<1-10>,"objection_handling":<1-10>,"close":<1-10>,"tone":<1-10>,"overall":<1-10>,"verdict":"<one or two direct sentences — say plainly whether they closed the deal and why>","the_one_fix":"<the single highest-leverage thing to change next call, concrete and actionable>"}`;
+{"closed":<true|false>,${metricSpec},"overall":<1-10>,"verdict":"<one or two direct sentences — say plainly whether they closed and why>","the_one_fix":"<the single highest-leverage thing to change next call, concrete and actionable, focused on ${m.oneFix}>"}`;
   const res = await fetch("https://api.anthropic.com/v1/messages",{
     method:"POST",
     headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-    body:JSON.stringify({model:"claude-haiku-4-5",max_tokens:600,system:sys,messages:[{role:"user",content:`Here is the call transcript:\n\n${convo||"(no words were exchanged)"}\n\nGrade it now as strict JSON.`}]})
+    body:JSON.stringify({model:"claude-haiku-4-5",max_tokens:700,system:sys,messages:[{role:"user",content:`Here is the call transcript:\n\n${convo||"(no words were exchanged)"}\n\nGrade it now as strict JSON.`}]})
   });
   if(!res.ok){ throw new Error("Grading failed: "+res.status+" "+(await res.text()).slice(0,140)); }
   const j = await res.json();
   let txt = (j.content&&j.content[0]&&j.content[0].text||"").trim();
-  const m = txt.match(/\{[\s\S]*\}/); if(m) txt = m[0];
+  const mt = txt.match(/\{[\s\S]*\}/); if(mt) txt = mt[0];
   return JSON.parse(txt);
 }
 
-/* ---------- ElevenLabs prospect agent (one public agent, made in the dashboard) ---------- */
+/* ---------- ElevenLabs prospect agent (one public agent) ---------- */
 function getAgentId(){
   const id = LS.get("agentId","");
   if(!id) throw new Error("No prospect agent yet — paste your public Agent ID in Settings.");
@@ -346,7 +443,7 @@ function getAgentId(){
 
 /* ---------- state + app ---------- */
 const app = document.getElementById("app");
-let S = { view:"home", persona:null, conversation:null, transcript:[], grade:null, status:"", earned:0, leveledUp:null };
+let S = { view:"home", persona:null, mode:"discovery", conversation:null, transcript:[], grade:null, status:"", earned:0, leveledUp:null };
 function go(v){ S.view=v; render(); }
 function toast(msg,ms=2600){ const t=document.getElementById("toast"); t.innerHTML=`<div class="toast">${msg}</div>`; if(ms) setTimeout(()=>{t.innerHTML="";},ms); }
 const ready = ()=> LS.get("agentId","") && LS.get("anthropicKey","");
@@ -359,11 +456,20 @@ function header(){
   </header>`;
 }
 
-function rankStrip(){
-  const rp=rankProgress(getXP());
-  return `<div class="rankstrip">
-    <div class="rtop"><span class="rname">${rp.cur.name}</span><span class="rnext">${rp.nxt?`${rp.have}/${rp.need} to ${rp.nxt.name}`:'MAX RANK'} · ${getCloses()} closed</span></div>
-    <div class="rbar"><i style="width:${rp.pct}%"></i></div>
+function ranks3(){
+  const rows = MODE_ORDER.map(mk=>{ const xp=getXP(mk); return {mk, m:MODES[mk], xp, rp:rankProgress(xp)}; });
+  const maxXp = Math.max(...rows.map(r=>r.xp));
+  const minXp = Math.min(...rows.map(r=>r.xp));
+  const weakMk = (maxXp>0 && minXp<maxXp) ? rows.find(r=>r.xp===minXp).mk : null;
+  return `<div class="rankstrip ranks3">
+    ${rows.map(r=>`
+      <div class="r3">
+        <div class="r3top">
+          <span class="r3mode">${r.m.icon} ${r.m.label}${r.mk===weakMk?` <span class="weak">drill this</span>`:``}</span>
+          <span class="r3rank">${r.rp.cur.name} <span class="r3meta">${r.rp.nxt?`${r.rp.have}/${r.rp.need}→${r.rp.nxt.name}`:'MAX'}</span></span>
+        </div>
+        <div class="rbar"><i style="width:${r.rp.pct}%"></i></div>
+      </div>`).join("")}
   </div>`;
 }
 
@@ -375,10 +481,10 @@ function homeView(){
     <div class="sub">The Deal Room runs on accounts you already have — your ElevenLabs agent powers the live voice, Claude grades the call. Nothing new to buy.</div>
     <div class="btn-row"><button class="btn" onclick="DR.go('setup')">Set it up →</button></div>`;
   }
-  return header()+rankStrip()+`
-    <div class="eyebrow label">Pick who you're up against</div>
+  return header()+ranks3()+`
+    <div class="eyebrow label" style="margin-top:18px">Pick who you're up against</div>
     <div class="h1">Who's on the line?</div>
-    <div class="sub">Choose a prospect, get your scenario, and make the call. Speak naturally — they push back and interrupt. You only rank up by <b style="color:var(--ink)">closing</b>.</div>
+    <div class="sub">Choose a prospect, then choose your approach — <b style="color:var(--ink)">Discovery</b>, <b style="color:var(--ink)">Pitch</b>, or <b style="color:var(--ink)">The Method</b>. Each one's its own ladder; you only rank up by closing.</div>
     <div class="grid">
       ${PERSONAS.map(p=>`
         <div class="card" onclick="DR.pick('${p.id}')">
@@ -388,7 +494,6 @@ function homeView(){
           <div class="ctags">
             <span class="tag diff-${p.difficulty}">${p.difficulty}</span>
             <span class="tag pts">+${DIFF_PTS[p.difficulty]} on close</span>
-            <span class="tag">${p.gender==='male'?'♂ voice':'♀ voice'}</span>
           </div>
           <div class="sell">You're selling: <b>${p.sell}</b></div>
         </div>`).join("")}
@@ -403,7 +508,7 @@ function setupView(){
     <div class="field" style="margin-top:18px">
       <label class="label" style="color:var(--mute)">ElevenLabs Agent ID</label>
       <input id="agid" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="agent_..." value="${ag}">
-      <div class="hint">Powers the live voice. In <a href="https://elevenlabs.io/app/agents" target="_blank">elevenlabs.io → Agents</a>, make one agent → open its <b>Security</b> tab → turn <b>off</b> authentication (makes it public) and turn <b>on</b> the System&nbsp;prompt, First&nbsp;message, Language &amp; Voice overrides → copy its ID here. It's public, so keep the ID unlisted.</div>
+      <div class="hint">Powers the live voice. In <a href="https://elevenlabs.io/app/agents" target="_blank">elevenlabs.io → Agents</a>, make one agent → <b>Security</b> tab → turn <b>off</b> authentication (public) and turn <b>on</b> the System&nbsp;prompt, First&nbsp;message, Language &amp; Voice overrides → copy its ID here. It's public, so keep the ID unlisted.</div>
     </div>
     <div class="field">
       <label class="label" style="color:var(--mute)">Anthropic (Claude) API key</label>
@@ -416,28 +521,35 @@ function setupView(){
 }
 
 function topicView(){
-  const p=S.persona;
+  const p=S.persona, m=MODES[S.mode], rp=rankProgress(getXP(S.mode));
+  const diffColor = p.difficulty==='brutal'?'red':p.difficulty==='hard'?'amber':'green';
   return `<button class="back" onclick="DR.go('home')">← back</button>
     <div class="eyebrow label">Your scenario</div>
     <div class="h1" style="font-size:27px">${p.name}</div>
-    <div class="sub" style="margin-bottom:6px">${p.role} · <span style="color:var(--${p.difficulty==='brutal'?'red':p.difficulty==='hard'?'amber':'green'})">${p.difficulty}</span> · +${DIFF_PTS[p.difficulty]} on close</div>
-    <div class="topiccard">
-      <div class="label">The call</div>
-      <p>You're cold-calling to sell <b style="color:var(--ink)">${p.sell}</b>. They didn't ask for this call. ${p.gender==='male'?'He':'She'}'s ${p.mood}.</p>
+    <div class="sub" style="margin-bottom:12px">${p.role} · <span style="color:var(--${diffColor})">${p.difficulty}</span> · ${m.icon} ${m.label} rank: <b style="color:var(--ink)">${rp.cur.name}</b></div>
+
+    <div class="label" style="margin-bottom:2px">Choose your approach</div>
+    <div class="modeseg">
+      ${MODE_ORDER.map(mk=>`<button class="${mk===S.mode?'on':''}" onclick="DR.setMode('${mk}')"><span class="mi">${MODES[mk].icon}</span>${MODES[mk].label}</button>`).join("")}
     </div>
-    <div class="topiccard">
-      <div class="label">Win = close the deal</div>
-      <p style="color:var(--mute)">Open strong, earn the right to ask questions, handle what comes back, and get them to <b style="color:var(--ink)">actually agree to a next step</b>. That's a close. Anything less is no deal.</p>
+    <div class="modeline"><b>${m.label} — ${m.tag}.</b> ${m.blurb}</div>
+
+    <div class="brief">
+      <div class="briefrow"><div class="corner"></div><div class="blab">The company</div><p>${p.company}</p></div>
+      <div class="briefrow"><div class="blab">The buyer</div><p>${p.buyer}</p></div>
+      <div class="briefrow"><div class="blab">Their real issue</div><p>${p.issue}</p></div>
+      <div class="briefrow sellrow"><div class="blab">What you're selling</div><p><b>${p.sell}.</b></p><div class="outcome2">What it really buys them: <b>${p.valueAngle}</b></div></div>
     </div>
-    <div class="btn-row" style="margin-top:18px">
-      <button class="btn" onclick="DR.startCall()">📞 Start the call</button>
+
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn" onclick="DR.startCall()">📞 Start the call · ${m.label}</button>
     </div>`;
 }
 
 function callView(){
-  const p=S.persona;
+  const p=S.persona, m=MODES[S.mode];
   return `<div class="call">
-    <div class="label">Connected · on the line</div>
+    <div class="label">Connected · ${m.label} mode</div>
     <div class="who">${p.name}</div>
     <div class="whorole">${p.role}</div>
     <div class="orb" id="orb"><div class="ring"></div><div class="core"><span class="ic" id="orbic">📞</span></div></div>
@@ -448,37 +560,39 @@ function callView(){
 }
 
 function gradingView(){
+  const m=MODES[S.mode];
   return `<div class="loadwrap">
     <div class="spin"></div>
-    <div class="label">Reviewing the call</div>
-    <div style="font-size:14px;max-width:280px">Claude is deciding if you closed it — and grading your opening, discovery, objection-handling, close and tone…</div>
+    <div class="label">Reviewing the call · ${m.label}</div>
+    <div style="font-size:14px;max-width:300px">Claude is deciding if you closed it — and grading you against the ${m.label} rubric: ${m.rubric.map(r=>r.name.toLowerCase()).join(", ")}…</div>
   </div>`;
 }
 
 function resultsView(){
-  const g=S.grade, p=S.persona;
+  const g=S.grade, p=S.persona, m=MODES[S.mode];
   if(!g) return `<div class="loadwrap"><div class="label">No grade</div></div>`;
   const won=!!g.closed;
-  const metrics=[["Opening",g.opening],["Discovery",g.discovery],["Objection handling",g.objection_handling],["Close",g.close],["Tone",g.tone]];
-  const rp=rankProgress(getXP());
+  const rp=rankProgress(getXP(S.mode));
   return `<button class="back" onclick="DR.go('home')">← new call</button>
-    <div class="eyebrow label" style="text-align:center">${p.name} · ${p.difficulty}</div>
+    <div class="eyebrow label" style="text-align:center">${p.name} · ${p.difficulty} · ${m.icon} ${m.label}</div>
     <div class="outcome ${won?'win':'loss'}">
       <div class="big">${won?'DEAL CLOSED':'NO DEAL'}</div>
       <div class="seal">${won?'you got the commitment':'they walked'}</div>
     </div>
     ${won
-      ? `<div class="earned">+${S.earned} ${S.earned===1?'point':'points'} · ${p.difficulty} close</div>`
+      ? `<div class="earned">+${S.earned} ${S.earned===1?'point':'points'} · ${m.label} ladder</div>`
       : `<div class="earned" style="color:var(--faint)">no points — only real closes count</div>`}
-    ${S.leveledUp?`<div class="levelup"><div class="lu1">★ Rank up</div><div class="lu2">${S.leveledUp.name}</div></div>`:``}
+    ${S.leveledUp?`<div class="levelup"><div class="lu1">★ Rank up · ${m.label}</div><div class="lu2">${S.leveledUp.name}</div></div>`:``}
     <div class="rankstrip">
-      <div class="rtop"><span class="rname">${rp.cur.name}</span><span class="rnext">${rp.nxt?`${rp.have}/${rp.need} to ${rp.nxt.name}`:'MAX RANK'}</span></div>
+      <div class="rtop"><span class="rname">${m.icon} ${rp.cur.name}</span><span class="rnext">${rp.nxt?`${rp.have}/${rp.need} to ${rp.nxt.name}`:'MAX RANK'}</span></div>
       <div class="rbar"><i style="width:${rp.pct}%"></i></div>
     </div>
     <div class="verdict">${g.verdict||""}</div>
-    ${metrics.map(([n,v])=>`
-      <div class="metric"><div class="top"><span class="mname">${n}</span><span class="mval">${v}/10</span></div>
-      <div class="bar"><i style="width:${(v||0)*10}%;background:${v>=7?'var(--green)':v>=5?'var(--amber)':'var(--orange)'}"></i></div></div>`).join("")}
+    ${m.rubric.map(r=>{ const v=g[r.key]; return `
+      <div class="metric">
+        <div class="top"><div><div class="mname">${r.name}</div><div class="mdesc">${r.desc}</div></div><span class="mval">${v==null?'–':v}/10</span></div>
+        <div class="bar"><i style="width:${(v||0)*10}%;background:${v>=7?'var(--green)':v>=5?'var(--amber)':'var(--orange)'}"></i></div>
+      </div>`; }).join("")}
     <div class="fix"><div class="label">The one fix</div><p>${g.the_one_fix||""}</p></div>
     <div class="transcript">
       <div class="label" style="margin-bottom:12px">The transcript</div>
@@ -505,7 +619,8 @@ function render(){
 /* ---------- controller ---------- */
 const DR = {
   go,
-  pick(id){ S.persona=PERSONAS.find(p=>p.id===id); S.transcript=[]; S.grade=null; S.earned=0; S.leveledUp=null; go("topic"); },
+  pick(id){ S.persona=PERSONAS.find(p=>p.id===id); S.mode=LS.get("lastMode","discovery"); S.transcript=[]; S.grade=null; S.earned=0; S.leveledUp=null; go("topic"); },
+  setMode(mk){ S.mode=mk; LS.set("lastMode",mk); render(); },
   saveKeys(){
     const ag=document.getElementById("agid").value.trim(), ak=document.getElementById("ak").value.trim();
     if(!ag||!ak){ toast("Both the Agent ID and Claude key are needed."); return; }
@@ -528,8 +643,8 @@ const DR = {
         agentId,
         connectionType:"websocket",
         overrides:{
-          agent:{ prompt:{ prompt:buildPrompt(p) }, firstMessage:p.first, language:"en" },
-          tts:{ voiceId: p.gender==='male'?VOICE.male:VOICE.female }
+          agent:{ prompt:{ prompt:buildPrompt(p,S.mode) }, firstMessage:p.first, language:"en" },
+          tts:{ voiceId: p.voiceId }
         },
         onConnect:()=>{ setStatus("on the line"); },
         onDisconnect:()=>{ /* handled by endCall */ },
@@ -537,7 +652,6 @@ const DR = {
         onModeChange:(m)=>{ setOrb(m&&m.mode); },
         onStatusChange:(st)=>{ /* connected/disconnected */ },
         onMessage:(m)=>{
-          // m: { source: 'user'|'ai', message: '...' }
           const role = (m.source==='user'||m.source==='human')?'me':'them';
           const text = m.message||m.text||"";
           if(!text) return;
@@ -554,14 +668,14 @@ const DR = {
     if(!S.transcript.length){ toast("Call ended — no speech captured."); go("home"); return; }
     go("grading");
     try{
-      S.grade = await gradeCall(S.persona,S.transcript);
+      S.grade = await gradeCall(S.persona,S.mode,S.transcript);
       S.earned = 0; S.leveledUp = null;
       if(S.grade.closed){
-        const before = getXP();
+        const before = getXP(S.mode);
         const pts = DIFF_PTS[S.persona.difficulty] || 1;
         const after = before + pts;
-        LS.set("xp", after);
-        LS.set("closes", getCloses()+1);
+        LS.set("xp_"+S.mode, after);
+        LS.set("closes_"+S.mode, getCloses(S.mode)+1);
         S.earned = pts;
         if(rankAt(before).name !== rankAt(after).name) S.leveledUp = rankAt(after);
       }
