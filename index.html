@@ -43,6 +43,14 @@
   .h1{font-family:var(--serif);font-size:32px;line-height:1.05;font-weight:600;margin:2px 0 4px}
   .sub{color:var(--mute);font-size:13.5px;line-height:1.5;margin-bottom:18px}
 
+  /* rank strip + progression */
+  .rankstrip{border:1px solid var(--line);background:linear-gradient(170deg,var(--panel),var(--carbon-2));border-radius:12px;padding:12px 14px;margin-bottom:16px}
+  .rankstrip .rtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:10px}
+  .rankstrip .rname{font-family:var(--serif);font-size:18px;font-weight:600}
+  .rankstrip .rnext{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);text-align:right}
+  .rankstrip .rbar{height:6px;background:var(--line);border-radius:4px;overflow:hidden}
+  .rankstrip .rbar i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),var(--orange-soft));border-radius:4px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+
   /* persona grid */
   .grid{display:flex;flex-direction:column;gap:11px;padding-bottom:30px}
   .card{position:relative;border:1px solid var(--line);background:linear-gradient(170deg,var(--panel),var(--carbon-2));border-radius:14px;padding:15px 15px 14px;overflow:hidden;transition:border-color .18s,transform .12s}
@@ -56,6 +64,7 @@
   .tag.diff-brutal{color:var(--red);border-color:rgba(240,80,110,.3)}
   .tag.diff-hard{color:var(--amber);border-color:rgba(242,193,78,.3)}
   .tag.diff-warm{color:var(--green);border-color:rgba(54,211,153,.3)}
+  .tag.pts{color:var(--faint)}
   .card .sell{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--mute);line-height:1.45}
   .card .sell b{color:var(--ink);font-weight:500}
 
@@ -96,11 +105,16 @@
   .topiccard p{margin:0;font-size:14.5px;line-height:1.55;color:var(--ink)}
 
   /* results */
-  .res-h{font-family:var(--serif);font-size:30px;font-weight:600;margin:8px 0 2px}
-  .verdict{font-size:14px;color:var(--mute);line-height:1.55;margin-bottom:22px}
-  .score-big{display:flex;align-items:baseline;gap:10px;margin:10px 0 24px}
-  .score-big .n{font-family:var(--serif);font-size:64px;font-weight:600;line-height:.9}
-  .score-big .d{font-family:var(--mono);font-size:13px;color:var(--faint)}
+  .outcome{display:flex;flex-direction:column;align-items:center;text-align:center;margin:10px 0 4px}
+  .outcome .big{font-family:var(--serif);font-size:48px;font-weight:600;line-height:1;letter-spacing:.01em}
+  .outcome.win .big{color:var(--green)}
+  .outcome.loss .big{color:var(--red)}
+  .outcome .seal{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);margin-top:10px}
+  .earned{font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:var(--green);text-align:center;margin:6px 0 16px}
+  .levelup{border:1px solid rgba(255,90,31,.45);background:linear-gradient(170deg,rgba(255,90,31,.15),transparent);border-radius:13px;padding:15px;text-align:center;margin:10px 0 14px}
+  .levelup .lu1{font-family:var(--mono);font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--orange)}
+  .levelup .lu2{font-family:var(--serif);font-size:27px;font-weight:600;margin-top:5px}
+  .verdict{font-size:14px;color:var(--mute);line-height:1.55;margin:14px 0 22px}
   .metric{margin-bottom:15px}
   .metric .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
   .metric .mname{font-size:13.5px;font-weight:500}
@@ -142,6 +156,29 @@ const VOICE = {
   male:   "pNInz6obpgDQGcFmaJgB",   // Adam — grounded, authoritative
   female: "21m00Tcm4TlvDq8ikWAM"    // Rachel — crisp, composed
 };
+
+/* ---------- progression: only CLOSING moves you up ---------- */
+const RANKS = [
+  {name:"Greenhorn",    at:0},
+  {name:"Cold Caller",  at:3},
+  {name:"Smooth Talker",at:8},
+  {name:"Closer",       at:16},
+  {name:"Deal Maker",   at:28},
+  {name:"Rainmaker",    at:44},
+  {name:"Shark",        at:64},
+  {name:"The Closer",   at:90}
+];
+const DIFF_PTS = { warm:1, hard:2, brutal:3 };
+const getXP = ()=> LS.get("xp",0);
+const getCloses = ()=> LS.get("closes",0);
+const rankAt = xp => { let r=RANKS[0]; for(const x of RANKS) if(xp>=x.at) r=x; return r; };
+const nextRankAt = xp => { for(const x of RANKS) if(x.at>xp) return x; return null; };
+function rankProgress(xp){
+  const cur=rankAt(xp), nxt=nextRankAt(xp);
+  if(!nxt) return {cur, nxt:null, pct:100, have:0, need:0};
+  const span=nxt.at-cur.at, into=xp-cur.at;
+  return {cur, nxt, pct:Math.max(3,Math.round(into/span*100)), have:into, need:span};
+}
 
 /* ---------- prospect roster ---------- */
 const PERSONAS = [
@@ -188,6 +225,72 @@ const PERSONAS = [
     winCondition:"she gives nothing unless you ask sharp, specific questions that make HER reveal the pain — you win by out-discovering her silence, never by pitching",
     sell:"an AI contract-renewal tracker that flags every slip before it costs them",
     first:"This is Eleanor Vance."
+  },
+  {
+    id:"tariq", name:"Tariq Mensah", role:"Owner · 3-location restaurant group", gender:"male",
+    difficulty:"hard",
+    personality:"gruff, been burned by software vendors before, deeply protective of his staff and his margins",
+    mood:"tired, the lunch rush just ended and he is wiping down a counter",
+    pain:"online orders pour in across three different delivery apps and his kitchen staff are drowning trying to track them all",
+    objections:["Every vendor promises me the world","My staff can barely use the till as it is","What's this gonna do to my margins","I'm short-staffed, I can't train on new tech"],
+    winCondition:"he only opens up if you show real respect for his staff's time and prove it protects his margin — talk to him like an operator, not a mark",
+    sell:"an AI that pulls every delivery-app order into one simple kitchen screen",
+    first:"Yeah, Tariq."
+  },
+  {
+    id:"brenda", name:"Brenda Okafor", role:"Owner · boutique clothing shop", gender:"female",
+    difficulty:"warm",
+    personality:"lovely and talkative, deeply risk-averse with money, loyal to how she has always done things",
+    mood:"calm, it's a quiet afternoon and she's happy for the company",
+    pain:"she's quietly losing sales to bigger online stores and has no idea where her customers go when they leave",
+    objections:["Oh I'm not techy at all","My customers love coming into the shop","Is something like this expensive","My daughter usually sorts out the computer side"],
+    winCondition:"she needs to feel it's SAFE and low-risk and tied to keeping her shop alive — warmth is easy, a concrete yes is the whole challenge",
+    sell:"an AI that turns her Instagram into a shop customers can buy from directly",
+    first:"Hello, Brenda speaking!"
+  },
+  {
+    id:"alan", name:"Dr. Alan Reeves", role:"Owner · private medical practice", gender:"male",
+    difficulty:"brutal",
+    personality:"precise, intellectually arrogant, distrusts salespeople on principle, demands evidence for every claim",
+    mood:"clipped and impatient, he has a patient in four minutes",
+    pain:"patient no-shows are wrecking his schedule and his revenue, and nothing he's tried has fixed it",
+    objections:["Where is your clinical evidence","We already tried reminders, didn't work","How are you handling patient data","I have a practice manager for this sort of thing"],
+    winCondition:"he respects only precision — you win by meeting his evidence and data-privacy bar head-on and quantifying the no-show revenue, with zero fluff",
+    sell:"an AI scheduler that cuts no-shows with smart, adaptive reminders",
+    first:"Dr. Reeves, yes?"
+  },
+  {
+    id:"mei", name:"Mei Lin", role:"Head of Ops · logistics startup", gender:"female",
+    difficulty:"hard",
+    personality:"data-driven, very sharp, polite but ruthless with her time, will not move without ROI",
+    mood:"neutral, clearly doing three things at once",
+    pain:"manual dispatch scheduling is breaking as they scale and every error costs a missed delivery window",
+    objections:["Send me the ROI numbers","We're mid-migration on another system","How long does integration take","Who else in logistics is using you"],
+    winCondition:"she moves only on quantified ROI plus a credible, low-friction integration story — respect her time and lead with the number",
+    sell:"an AI dispatch optimizer that schedules routes automatically",
+    first:"Mei here, go ahead."
+  },
+  {
+    id:"chuck", name:"Chuck Donnelly", role:"Owner · general contracting firm", gender:"male",
+    difficulty:"brutal",
+    personality:"blunt, proud, thirty years on the tools, thinks AI is hype and salespeople are a waste of his day",
+    mood:"irritated, he's standing on a noisy job site",
+    pain:"he loses bids because his estimating is slow, and he's buried in paperwork every night instead of at home",
+    objections:["I've built for thirty years without a computer telling me prices","A robot can't price a real job","How much is this gonna run me","I don't got time for a demo on a site"],
+    winCondition:"he shuts down anyone who condescends — you win by respecting his experience and tying it to winning more bids, the money he's leaving on the table",
+    sell:"an AI that turns a set of plans into a fast, accurate estimate",
+    first:"Donnelly. What is it."
+  },
+  {
+    id:"sofia", name:"Sofia Castellano", role:"Director · community non-profit", gender:"female",
+    difficulty:"warm",
+    personality:"warm, mission-driven, overworked, feels guilty spending a cent on anything but the cause, struggles to decide",
+    mood:"kind but exhausted",
+    pain:"her tiny team burns their evenings writing donor and grant reports instead of doing the actual work",
+    objections:["Every dollar should go to the cause","I'd have to take this to the board","Is it safe with our donors' data","We're really not a technical team"],
+    winCondition:"she needs it framed as giving her team back time for the mission, genuinely low-cost — then a gentle, concrete next step past her indecision",
+    sell:"an AI that drafts your donor and grant reports automatically",
+    first:"Hello, this is Sofia."
   }
 ];
 
@@ -205,19 +308,23 @@ HOW TO BEHAVE:
 - Throw realistic objections, roughly drawn from: ${p.objections.map(o=>`"${o}"`).join(", ")}. Don't list them — surface them naturally when the salesperson gives you an opening.
 - Do NOT volunteer your real problem. Make them earn it with good questions. If they pitch features before understanding you, get more resistant or impatient.
 - Stay difficulty-appropriate. Your difficulty is ${p.difficulty.toUpperCase()}. ${p.difficulty==='brutal'?'Be genuinely hard — short, skeptical, ready to end the call if they waste your time.':p.difficulty==='hard'?'Be skeptical and testing, but fair if they are sharp.':'Be warm and talkative, but slippery to actually commit.'}
-- THE ONLY WAY THEY WIN: ${p.winCondition}. If and only if they do that, gradually warm up and move toward a real next step. If they never do, stay unconvinced and eventually wrap the call.
-- Keep your turns to 1–3 sentences. This is a fast back-and-forth call, not a monologue.`;
+- THE ONLY WAY THEY CLOSE YOU: ${p.winCondition}. If and only if they genuinely earn it, gradually warm up and AGREE to a concrete next step — a booked meeting, a trial, a signature, or handing over your real contact with clear intent. When you truly agree, say it plainly, e.g. "alright, let's set it up" or "okay, send me the contract." Never agree out of politeness — only when earned.
+- This is a real call with a natural arc — reach a decision. Don't loop forever: after a fair exchange, either commit (if earned) or move to wrap the call up. Keep your turns to 1–3 sentences, a fast back-and-forth, not a monologue.`;
 }
 
-/* ---------- Anthropic grading ---------- */
+/* ---------- Anthropic grading + close detection ---------- */
 async function gradeCall(persona, transcript){
   const key = LS.get("anthropicKey","");
   if(!key) throw new Error("No Anthropic key set.");
   const convo = transcript.map(t=>`${t.role==='me'?'SALESPERSON':persona.name.toUpperCase()}: ${t.text}`).join("\n");
   const sys = `You are an elite sales coach grading a cold call. The SALESPERSON was practicing selling "${persona.sell}" to ${persona.name} (${persona.role}), a ${persona.difficulty} prospect whose hidden win-condition was: ${persona.winCondition}.
 
-Grade ONLY the salesperson. Be honest and specific — this is training, flattery is useless. Reply with STRICT JSON only, no prose, no markdown:
-{"opening":<1-10>,"discovery":<1-10>,"objection_handling":<1-10>,"close":<1-10>,"tone":<1-10>,"overall":<1-10>,"verdict":"<one or two sentences, direct>","the_one_fix":"<the single highest-leverage thing to change next call, concrete and actionable>"}`;
+Grade ONLY the salesperson. Be honest and specific — this is training, flattery is useless.
+
+"closed" = did the prospect GENUINELY agree to a concrete next step (a booked meeting/demo with real intent, a trial or purchase yes, a signature, or handing over real contact info to proceed)? Mere interest, "send me info", "I'll think about it", or just warming up is NOT a close. Be strict — a real close has to be earned.
+
+Reply with STRICT JSON only, no prose, no markdown:
+{"closed":<true|false>,"opening":<1-10>,"discovery":<1-10>,"objection_handling":<1-10>,"close":<1-10>,"tone":<1-10>,"overall":<1-10>,"verdict":"<one or two direct sentences — say plainly whether they closed the deal and why>","the_one_fix":"<the single highest-leverage thing to change next call, concrete and actionable>"}`;
   const res = await fetch("https://api.anthropic.com/v1/messages",{
     method:"POST",
     headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
@@ -242,7 +349,7 @@ async function ensureAgent(){
     body:JSON.stringify({
       name:"The Deal Room — Prospect",
       conversation_config:{
-        agent:{ prompt:{ prompt:"You are a sales prospect. Your persona is set per call.", llm:"gpt-4o" }, first_message:"Hello?", language:"en" },
+        agent:{ prompt:{ prompt:"You are a sales prospect. Your persona is set per call.", llm:"gpt-4o-mini" }, first_message:"Hello?", language:"en" },
         tts:{ voice_id:VOICE.male }
       },
       platform_settings:{
@@ -263,7 +370,7 @@ async function ensureAgent(){
 
 /* ---------- state + app ---------- */
 const app = document.getElementById("app");
-let S = { view:"home", persona:null, conversation:null, transcript:[], grade:null, status:"" };
+let S = { view:"home", persona:null, conversation:null, transcript:[], grade:null, status:"", earned:0, leveledUp:null };
 function go(v){ S.view=v; render(); }
 function toast(msg,ms=2600){ const t=document.getElementById("toast"); t.innerHTML=`<div class="toast">${msg}</div>`; if(ms) setTimeout(()=>{t.innerHTML="";},ms); }
 const ready = ()=> LS.get("elevenKey","") && LS.get("anthropicKey","");
@@ -276,6 +383,14 @@ function header(){
   </header>`;
 }
 
+function rankStrip(){
+  const rp=rankProgress(getXP());
+  return `<div class="rankstrip">
+    <div class="rtop"><span class="rname">${rp.cur.name}</span><span class="rnext">${rp.nxt?`${rp.have}/${rp.need} to ${rp.nxt.name}`:'MAX RANK'} · ${getCloses()} closed</span></div>
+    <div class="rbar"><i style="width:${rp.pct}%"></i></div>
+  </div>`;
+}
+
 function homeView(){
   if(!ready()){
     return header()+`
@@ -284,10 +399,10 @@ function homeView(){
     <div class="sub">The Deal Room runs on accounts you already have — your ElevenLabs sub powers the live voice, Claude grades the call. Nothing new to buy.</div>
     <div class="btn-row"><button class="btn" onclick="DR.go('setup')">Add my keys →</button></div>`;
   }
-  return header()+`
+  return header()+rankStrip()+`
     <div class="eyebrow label">Pick who you're up against</div>
     <div class="h1">Who's on the line?</div>
-    <div class="sub">Choose a prospect, get your scenario, and make the call. Speak naturally — they'll talk back, push back, and interrupt. End the call to get graded.</div>
+    <div class="sub">Choose a prospect, get your scenario, and make the call. Speak naturally — they push back and interrupt. You only rank up by <b style="color:var(--ink)">closing</b>.</div>
     <div class="grid">
       ${PERSONAS.map(p=>`
         <div class="card" onclick="DR.pick('${p.id}')">
@@ -296,6 +411,7 @@ function homeView(){
           <div class="crole">${p.role}</div>
           <div class="ctags">
             <span class="tag diff-${p.difficulty}">${p.difficulty}</span>
+            <span class="tag pts">+${DIFF_PTS[p.difficulty]} on close</span>
             <span class="tag">${p.gender==='male'?'♂ voice':'♀ voice'}</span>
           </div>
           <div class="sell">You're selling: <b>${p.sell}</b></div>
@@ -320,7 +436,7 @@ function setupView(){
     </div>
     <div class="btn-row">
       <button class="btn" onclick="DR.saveKeys()">Save & continue</button>
-      ${LS.get("agentId","")?`<button class="btn ghost" onclick="DR.resetAgent()">Rebuild prospect agent</button>`:""}
+      ${LS.get("agentId","")?`<button class="btn ghost" onclick="DR.resetAgent()">Rebuild prospect agent (cheaper brain)</button>`:""}
     </div>`;
 }
 
@@ -329,14 +445,14 @@ function topicView(){
   return `<button class="back" onclick="DR.go('home')">← back</button>
     <div class="eyebrow label">Your scenario</div>
     <div class="h1" style="font-size:27px">${p.name}</div>
-    <div class="sub" style="margin-bottom:6px">${p.role} · <span style="color:var(--${p.difficulty==='brutal'?'red':p.difficulty==='hard'?'amber':'green'})">${p.difficulty}</span></div>
+    <div class="sub" style="margin-bottom:6px">${p.role} · <span style="color:var(--${p.difficulty==='brutal'?'red':p.difficulty==='hard'?'amber':'green'})">${p.difficulty}</span> · +${DIFF_PTS[p.difficulty]} on close</div>
     <div class="topiccard">
       <div class="label">The call</div>
       <p>You're cold-calling to sell <b style="color:var(--ink)">${p.sell}</b>. They didn't ask for this call. ${p.gender==='male'?'He':'She'}'s ${p.mood}.</p>
     </div>
     <div class="topiccard">
-      <div class="label">Your job</div>
-      <p style="color:var(--mute)">Open strong, earn the right to ask questions, handle what comes back, and get a real next step. They won't make it easy.</p>
+      <div class="label">Win = close the deal</div>
+      <p style="color:var(--mute)">Open strong, earn the right to ask questions, handle what comes back, and get them to <b style="color:var(--ink)">actually agree to a next step</b>. That's a close. Anything less is no deal.</p>
     </div>
     <div class="btn-row" style="margin-top:18px">
       <button class="btn" onclick="DR.startCall()">📞 Start the call</button>
@@ -360,18 +476,30 @@ function gradingView(){
   return `<div class="loadwrap">
     <div class="spin"></div>
     <div class="label">Reviewing the call</div>
-    <div style="font-size:14px;max-width:280px">Claude is grading your opening, discovery, objection-handling, close and tone…</div>
+    <div style="font-size:14px;max-width:280px">Claude is deciding if you closed it — and grading your opening, discovery, objection-handling, close and tone…</div>
   </div>`;
 }
 
 function resultsView(){
   const g=S.grade, p=S.persona;
   if(!g) return `<div class="loadwrap"><div class="label">No grade</div></div>`;
+  const won=!!g.closed;
   const metrics=[["Opening",g.opening],["Discovery",g.discovery],["Objection handling",g.objection_handling],["Close",g.close],["Tone",g.tone]];
+  const rp=rankProgress(getXP());
   return `<button class="back" onclick="DR.go('home')">← new call</button>
-    <div class="eyebrow label">Call graded · ${p.name}</div>
-    <div class="res-h">The verdict</div>
-    <div class="score-big"><span class="n" style="color:${g.overall>=7?'var(--green)':g.overall>=5?'var(--amber)':'var(--red)'}">${g.overall}</span><span class="d">/ 10 overall</span></div>
+    <div class="eyebrow label" style="text-align:center">${p.name} · ${p.difficulty}</div>
+    <div class="outcome ${won?'win':'loss'}">
+      <div class="big">${won?'DEAL CLOSED':'NO DEAL'}</div>
+      <div class="seal">${won?'you got the commitment':'they walked'}</div>
+    </div>
+    ${won
+      ? `<div class="earned">+${S.earned} ${S.earned===1?'point':'points'} · ${p.difficulty} close</div>`
+      : `<div class="earned" style="color:var(--faint)">no points — only real closes count</div>`}
+    ${S.leveledUp?`<div class="levelup"><div class="lu1">★ Rank up</div><div class="lu2">${S.leveledUp.name}</div></div>`:``}
+    <div class="rankstrip">
+      <div class="rtop"><span class="rname">${rp.cur.name}</span><span class="rnext">${rp.nxt?`${rp.have}/${rp.need} to ${rp.nxt.name}`:'MAX RANK'}</span></div>
+      <div class="rbar"><i style="width:${rp.pct}%"></i></div>
+    </div>
     <div class="verdict">${g.verdict||""}</div>
     ${metrics.map(([n,v])=>`
       <div class="metric"><div class="top"><span class="mname">${n}</span><span class="mval">${v}/10</span></div>
@@ -382,7 +510,7 @@ function resultsView(){
       ${S.transcript.length?S.transcript.map(t=>`<div class="line ${t.role}"><span class="who2">${t.role==='me'?'You':p.name}</span>${t.text}</div>`).join(""):'<div class="verdict">No words were captured.</div>'}
     </div>
     <div class="btn-row" style="margin-top:24px">
-      <button class="btn" onclick="DR.pick('${p.id}')">↻ Run it again</button>
+      <button class="btn" onclick="DR.pick('${p.id}')">${won?'↻ Run it again':'↻ Try again'}</button>
       <button class="btn ghost" onclick="DR.go('home')">Pick a different prospect</button>
     </div>`;
 }
@@ -402,7 +530,7 @@ function render(){
 /* ---------- controller ---------- */
 const DR = {
   go,
-  pick(id){ S.persona=PERSONAS.find(p=>p.id===id); S.transcript=[]; S.grade=null; go("topic"); },
+  pick(id){ S.persona=PERSONAS.find(p=>p.id===id); S.transcript=[]; S.grade=null; S.earned=0; S.leveledUp=null; go("topic"); },
   saveKeys(){
     const ek=document.getElementById("ek").value.trim(), ak=document.getElementById("ak").value.trim();
     if(!ek||!ak){ toast("Both keys are needed."); return; }
@@ -453,6 +581,16 @@ const DR = {
     go("grading");
     try{
       S.grade = await gradeCall(S.persona,S.transcript);
+      S.earned = 0; S.leveledUp = null;
+      if(S.grade.closed){
+        const before = getXP();
+        const pts = DIFF_PTS[S.persona.difficulty] || 1;
+        const after = before + pts;
+        LS.set("xp", after);
+        LS.set("closes", getCloses()+1);
+        S.earned = pts;
+        if(rankAt(before).name !== rankAt(after).name) S.leveledUp = rankAt(after);
+      }
       go("results");
     }catch(e){ toast(e.message,5000); go("home"); }
   }

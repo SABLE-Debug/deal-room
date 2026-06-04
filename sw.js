@@ -1,5 +1,5 @@
 // The Deal Room — service worker (offline shell, live APIs)
-const CACHE = 'dealroom-v1';
+const CACHE = 'dealroom-v2';
 const ASSETS = ['./index.html', './manifest.webmanifest', './icon-dealroom.png'];
 
 self.addEventListener('install', e => {
