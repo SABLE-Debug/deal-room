@@ -123,6 +123,38 @@
   .r3.real .r3mode{color:var(--red)}
   .r3.real .rbar i{background:linear-gradient(90deg,var(--red),#ff8fa0)}
 
+  /* playbook */
+  .pblink{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:linear-gradient(170deg,var(--panel),var(--carbon-2));border-radius:13px;padding:13px 15px;margin:14px 0 0;transition:transform .12s,border-color .15s}
+  .pblink:active{transform:scale(.99)}
+  .pblink:hover{border-color:rgba(255,90,31,.35)}
+  .pblink .pli{font-size:22px}
+  .pblink .plt{flex:1}
+  .pblink .plt .pln{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--ink)}
+  .pblink .plt .pld{font-size:11.5px;color:var(--mute);margin-top:1px}
+  .pblink .plx{color:var(--orange-soft);font-size:16px}
+  .pbinline{display:inline-flex;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--orange-soft);margin:-6px 0 14px}
+  .pbread{border:1px solid var(--line);background:var(--carbon-2);border-radius:12px;padding:13px 14px;margin-bottom:14px}
+  .pbread .blab{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange-soft);margin-bottom:6px}
+  .pbread p{margin:0;font-size:13px;line-height:1.55;color:var(--ink)}
+  .chain{border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin-bottom:18px}
+  .chain .blab{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
+  .chainrow{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+  .chainrow .cue{font-size:12.5px;font-weight:600;color:var(--ink);background:rgba(255,90,31,.1);border:1px solid rgba(255,90,31,.25);border-radius:8px;padding:5px 9px}
+  .chainrow .cue.weakcue{background:rgba(242,193,78,.14);border-color:rgba(242,193,78,.4);color:var(--amber)}
+  .chainrow .arr{color:var(--faint);font-size:13px}
+  .pbstep{border:1px solid var(--line);background:var(--carbon-2);border-radius:13px;padding:14px 15px;margin-bottom:11px}
+  .pbstep.weak{border-color:rgba(242,193,78,.45);background:linear-gradient(170deg,rgba(242,193,78,.06),var(--carbon-2))}
+  .pbtop{display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap}
+  .pbnum{width:22px;height:22px;border-radius:50%;background:var(--orange);color:#140a04;font-family:var(--mono);font-size:11px;font-weight:700;display:grid;place-items:center;flex-shrink:0}
+  .pbcue{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--ink)}
+  .pbweak{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;color:var(--amber);border:1px solid rgba(242,193,78,.4);border-radius:20px;padding:2px 7px}
+  .pbsk{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .pbmove{font-size:13.5px;line-height:1.5;color:var(--ink);margin-bottom:11px}
+  .pbsay,.pblisten{border-top:1px dashed var(--line);padding-top:9px;margin-top:9px}
+  .sublab{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:5px}
+  .pbsay p{margin:0 0 5px;font-size:13.5px;line-height:1.5;color:var(--orange-soft)}
+  .pblisten p{margin:0;font-size:13px;line-height:1.5;color:var(--mute)}
+
   /* briefing */
   .brief{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
   .briefrow{position:relative;border:1px solid var(--line);background:var(--carbon-2);border-radius:13px;padding:14px 15px;overflow:hidden}
@@ -469,6 +501,43 @@ const PERSONAS = [
   }
 ];
 
+/* ---------- the Playbook: blueprints (steps keyed to each rubric) + public reads ---------- */
+const BLUEPRINTS = {
+  discovery:{
+    opening:{ cue:`Permission first`, move:`Earn the right to ask by naming why you're here and handing them control of the agenda.`, example:[`Before I pitch anything — mind if I ask what's actually going on first? If it's not a fit, I'll tell you.`,`Give me five minutes of questions, then you decide if it's worth more time.`], listen:`They relax and say "yeah, go ahead" instead of bracing for a pitch.` },
+    questioning:{ cue:`Walk it downstream`, move:`Ask layered questions that move from their situation, to the problem, to what it's costing them.`, example:[`How are you handling that today?`,`And when that breaks, who feels it first?`,`What does that cost you in a bad month?`], listen:`They start telling you things you didn't ask — the problem spills out on its own.` },
+    diagnosis:{ cue:`Name the wound`, move:`Say the problem back in your words, sharper than they did, and get them to confirm it.`, example:[`So it's not the software — it's that nobody trusts the number it spits out. Fair?`,`Sounds like the real issue is you're flying blind till month-end.`], listen:`"Exactly" — or they correct one detail and keep the frame. Either way, they own it now.` },
+    listening:{ cue:`Talk less, mirror`, move:`Shut up, let silence work, and reflect back the emotional words they used — not yours.`, example:[`You said "exhausting" — say more about that.`,`…go on.  (then wait)`], listen:`They fill the silence with the thing they actually care about — usually after a pause.` },
+    close:{ cue:`Earn the yes`, move:`Trade the next step for their agreement that the problem is worth solving. Never assume it.`, example:[`If we could fix exactly that, is this worth a real look?`,`What would need to be true for this to be a priority this quarter?`], listen:`They name a next step, a date, or who else needs to be in the room.` }
+  },
+  pitch:{
+    opening:{ cue:`Outcome, not feature`, move:`Open on the outcome they want, not your product — make the first sentence about their world.`, example:[`Most people I talk to want one thing: stop losing hours to this. That's what this does.`,`Quick version — this gets you the result without the pain. Want the how?`], listen:`They lean in and ask "how does that work?" rather than "how much?"` },
+    clarity:{ cue:`One breath, no jargon`, move:`Explain it in one plain line a 12-year-old gets — one core idea, zero jargon.`, example:[`It watches your numbers and texts you the second one looks wrong. That's it.`,`Think of it as a smoke alarm for your cash.`], listen:`They repeat it back in their own words — it landed, and it's portable now.` },
+    objections:{ cue:`Behind the no`, move:`Welcome the pushback, ask what's behind it, then answer the real concern — not the surface line.`, example:[`Totally fair — when you say "too expensive," too expensive versus what?`,`Good — what would have to be true for the price to feel obvious?`], listen:`The objection softens into a real question ("so how would onboarding work?").` },
+    value:{ cue:`Price the status quo`, move:`Anchor the price against the cost of staying put, in their numbers — make doing nothing the expensive option.`, example:[`You said a bad month runs you 10 grand. This is a fraction of one bad month.`,`What's it costing you to not fix this — every month it sits?`], listen:`They go quiet and do the math out loud, or stop arguing price entirely.` },
+    close:{ cue:`Ask, then shut up`, move:`Ask for the decision directly, give a clear next action, then stop talking.`, example:[`Want to do this?`,`I'll send the link, you're live today — sound good?  (then silence)`], listen:`A clean yes, or a real objection you can work — anything but a vague "let me think about it."` }
+  },
+  method:{
+    diagnosis:{ cue:`Find the gap`, move:`Map their world fast — current state, the gap, the cost of the gap — before you offer anything.`, example:[`Walk me through how this works today.`,`Where's it actually breaking?`,`And what does that break cost you?`], listen:`You can repeat their problem back better than they told it, and they nod.` },
+    reframe:{ cue:`Teach, don't echo`, move:`Teach them something about their own problem they hadn't seen — shift the frame, don't just agree.`, example:[`Here's what most people miss — the issue isn't the tool, it's that the tool hides the real cost until it's too late.`,`You're treating this as a tooling problem. It's a trust problem.`], listen:`"Huh — I hadn't thought of it that way." The frame just moved.` },
+    outcome:{ cue:`Sell the after`, move:`Paint the after — their life once it's solved — then connect your offer as the bridge to it.`, example:[`Picture month-end taking an hour instead of a week. That's the gap we close.`,`Six weeks out, you're not even thinking about this anymore. That's the goal.`], listen:`They start describing the future themselves — "yeah, and then I could finally…"` },
+    objections:{ cue:`Isolate the real one`, move:`Treat every objection as a question; isolate the real one, label it, and resolve it before moving.`, example:[`Is that the only thing between us and a yes, or is there more?`,`Say price weren't an issue — would you do it? Good, so it's about value. Let's talk value.`], listen:`You're down to one true objection — and they confirm it's the last one.` },
+    close:{ cue:`Assume and ask`, move:`Assume the sale, lay out the next step plainly, and ask for the commitment without flinching.`, example:[`Makes sense to move — here's step one. Good to go?`,`I'll get you set up. Card or invoice?`], listen:`They commit, schedule, or hand you a logistics question ("when can we start?") — buying signals, not stalling.` }
+  }
+};
+const PUBLIC_READS = {
+  marcus:`Walk in hypothesizing that 40 locations stitched together by PE means his numbers don't roll up cleanly and his board wants standardized reporting yesterday — then confirm it, don't assume it.`,
+  priya:`Walk in hypothesizing that a seed-stage founder is doing five jobs at once and guards both runway and time hard — then confirm it, don't assume it.`,
+  dale:`Walk in hypothesizing that a one-truck owner-operator buys only what wins jobs or saves his own hours today, and distrusts anything that smells corporate — then confirm it, don't assume it.`,
+  eleanor:`Walk in hypothesizing that an enterprise procurement VP is measured on risk and savings, will run you through a long process, and needs to look smart to stakeholders — then confirm it, don't assume it.`,
+  tariq:`Walk in hypothesizing that a 3-location restaurant owner lives on thin margins, juggles labor and food cost daily, and has zero patience for anything fiddly — then confirm it, don't assume it.`,
+  brenda:`Walk in hypothesizing that a boutique-shop owner competes on taste and relationships, watches every dollar, and has been burned by tools built for big chains — then confirm it, don't assume it.`,
+  alan:`Walk in hypothesizing that a private-practice doctor is short on time, wary of compliance risk, and resents anything that pulls him off patients — then confirm it, don't assume it.`,
+  mei:`Walk in hypothesizing that a last-mile ops head is drowning in moving parts, judged on cost-per-delivery and on-time rate, and is scaling faster than her systems — then confirm it, don't assume it.`,
+  chuck:`Walk in hypothesizing that a GC owner runs on jobsite chaos, chases payment and subs, and won't touch software he has to babysit from a truck — then confirm it, don't assume it.`,
+  sofia:`Walk in hypothesizing that a non-profit director is starved for budget, answers to a board and funders, and needs to show impact more than features — then confirm it, don't assume it.`
+};
+
 /* ---------- build the role-play system prompt (persona scenario + chosen mode) ---------- */
 function buildPrompt(p, mode){
   const m = MODES[mode];
@@ -571,7 +640,8 @@ function homeView(){
     <div class="btn-row"><button class="btn" onclick="DR.go('setup')">Set it up →</button></div>`;
   }
   return header()+ranks3()+`
-    <div class="eyebrow label" style="margin-top:18px">Pick who you're up against</div>
+    <button class="pblink" onclick="DR.playbook('discovery','home')"><span class="pli">📖</span><div class="plt"><div class="pln">The Playbook</div><div class="pld">Study the frameworks — the moves, cues &amp; lines</div></div><span class="plx">→</span></button>
+    <div class="eyebrow label" style="margin-top:6px">Pick who you're up against</div>
     <div class="h1">Who's on the line?</div>
     <div class="sub">Choose a prospect, then choose your approach — <b style="color:var(--ink)">Discovery</b>, <b style="color:var(--ink)">Pitch</b>, or <b style="color:var(--ink)">The Method</b>. Each one's its own ladder; you only rank up by closing.</div>
     <div class="grid">
@@ -633,6 +703,7 @@ function topicView(){
       <span class="lx">${S.mode==='lionsden'?'ACTIVE':'ENTER'}</span>
     </button>
     <div class="modeline"><b>${m.label} — ${m.tag}.</b> ${m.blurb}</div>
+    <button class="pbinline" onclick="DR.playbook('${S.mode==='lionsden'?'method':S.mode}','topic')">📖 ${S.mode==='lionsden'?'The Method playbook — what to run in the den':'See the '+m.label+' playbook'} →</button>
 
     ${S.mode==='lionsden' ? `
     <div class="blind">
@@ -683,6 +754,7 @@ function resultsView(){
   if(!g) return `<div class="loadwrap"><div class="label">No grade</div></div>`;
   const won=!!g.closed;
   const rp=rankProgress(getXP(S.mode));
+  const pbfw = S.mode==='lionsden'?'method':S.mode, weak = weakestStep(pbfw);
   return `<button class="back" onclick="DR.go('home')">← new call</button>
     <div class="eyebrow label" style="text-align:center">${p.name} · ${p.difficulty} · ${m.icon} ${m.label}</div>
     <div class="outcome ${won?'win':'loss'}">
@@ -710,7 +782,55 @@ function resultsView(){
     </div>
     <div class="btn-row" style="margin-top:24px">
       <button class="btn" onclick="DR.pick('${p.id}')">${won?'↻ Run it again':'↻ Try again'}</button>
+      <button class="btn ghost" onclick="DR.playbook('${pbfw}','results')">📖 Drill the playbook${weak?' · your weak step':''}</button>
       <button class="btn ghost" onclick="DR.go('home')">Pick a different prospect</button>
+    </div>`;
+}
+
+/* ---------- Playbook: weakness tracking + view ---------- */
+function logScores(mode,grade){
+  if(!grade||!MODES[mode]) return;
+  const rec={}; MODES[mode].rubric.forEach(r=>{ if(typeof grade[r.key]==='number') rec[r.key]=grade[r.key]; });
+  const hist=LS.get("pb_"+mode,[]); hist.push(rec); while(hist.length>8) hist.shift();
+  LS.set("pb_"+mode,hist);
+}
+function weakestStep(mode){
+  if(!MODES[mode]) return null;
+  const hist=LS.get("pb_"+mode,[]); if(!hist.length) return null;
+  let worst=null, wAvg=99;
+  for(const r of MODES[mode].rubric){
+    const vals=hist.map(h=>h[r.key]).filter(v=>typeof v==='number');
+    if(!vals.length) continue;
+    const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+    if(avg<wAvg){ wAvg=avg; worst=r.key; }
+  }
+  return worst;
+}
+function playbookView(){
+  const PB=["discovery","pitch","method"];
+  const fw=PB.includes(S.pbMode)?S.pbMode:"discovery";
+  const bp=BLUEPRINTS[fw], m=MODES[fw], steps=m.rubric.map(r=>r.key), weak=weakestStep(fw), p=S.persona;
+  return `<button class="back" onclick="DR.go('${S.pbBack||'home'}')">← back</button>
+    <div class="eyebrow label">The Playbook</div>
+    <div class="h1" style="font-size:27px">Know it cold.</div>
+    <div class="sub" style="margin-bottom:14px">The frameworks the call grades you on — the moves, the cues, the lines. Learn them here, run them in there.</div>
+    <div class="modeseg">
+      ${PB.map(k=>`<button class="${k===fw?'on':''}" onclick="DR.setPb('${k}')"><span class="mi">${MODES[k].icon}</span>${MODES[k].label}</button>`).join("")}
+    </div>
+    ${p?`<div class="pbread"><div class="blab">🔎 Your public read on ${p.name}</div><p>${PUBLIC_READS[p.id]||''}</p></div>`:''}
+    <div class="chain">
+      <div class="blab">The chain — hold this in your head</div>
+      <div class="chainrow">${steps.map((k,i)=>`<span class="cue${k===weak?' weakcue':''}">${bp[k].cue}</span>${i<steps.length-1?`<span class="arr">→</span>`:''}`).join("")}</div>
+    </div>
+    ${steps.map((k,i)=>{ const s=bp[k], r=m.rubric.find(x=>x.key===k), isW=k===weak; return `
+      <div class="pbstep${isW?' weak':''}">
+        <div class="pbtop"><span class="pbnum">${i+1}</span><span class="pbcue">${s.cue}</span>${isW?`<span class="pbweak">drill this</span>`:''}<span class="pbsk">${r.name}</span></div>
+        <div class="pbmove">${s.move}</div>
+        <div class="pbsay"><div class="sublab">say</div>${s.example.map(l=>`<p>"${l}"</p>`).join("")}</div>
+        <div class="pblisten"><div class="sublab">listen for</div><p>${s.listen}</p></div>
+      </div>`; }).join("")}
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn ghost" onclick="DR.go('${S.pbBack||'home'}')">${S.pbBack==='topic'&&p?`← back to ${p.name}`:S.pbBack==='results'?`← back to your grade`:`← back to prospects`}</button>
     </div>`;
 }
 
@@ -722,6 +842,7 @@ function render(){
     v==="call"?callView():
     v==="grading"?gradingView():
     v==="results"?resultsView():
+    v==="playbook"?playbookView():
     homeView();
   window.scrollTo(0,0);
   app.classList.remove("anim"); void app.offsetWidth; app.classList.add("anim");
@@ -732,6 +853,8 @@ const DR = {
   go,
   pick(id){ S.persona=PERSONAS.find(p=>p.id===id); S.mode=LS.get("lastMode","discovery"); S.transcript=[]; S.grade=null; S.earned=0; S.leveledUp=null; go("topic"); },
   setMode(mk){ S.mode=mk; LS.set("lastMode",mk); render(); },
+  playbook(fw,back){ S.pbMode = fw || (S.mode==='lionsden'?'method':S.mode) || 'discovery'; S.pbBack = back || (S.persona?'topic':'home'); go('playbook'); },
+  setPb(fw){ S.pbMode=fw; render(); },
   saveKeys(){
     const ag=document.getElementById("agid").value.trim(), ak=document.getElementById("ak").value.trim();
     if(!ag||!ak){ toast("Both the Agent ID and Claude key are needed."); return; }
@@ -780,6 +903,7 @@ const DR = {
     go("grading");
     try{
       S.grade = await gradeCall(S.persona,S.mode,S.transcript);
+      logScores(S.mode,S.grade);
       S.earned = 0; S.leveledUp = null;
       if(S.grade.closed){
         const before = getXP(S.mode);
