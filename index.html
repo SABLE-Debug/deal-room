@@ -60,23 +60,29 @@
   .r3 .rbar{height:5px}
   .weak{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;color:var(--amber);border:1px solid rgba(242,193,78,.35);border-radius:20px;padding:2px 7px}
 
-  /* persona grid */
-  .grid{display:flex;flex-direction:column;gap:11px;padding-bottom:30px}
-  .card{position:relative;border:1px solid var(--line);background:linear-gradient(170deg,var(--panel),var(--carbon-2));border-radius:14px;padding:15px 15px 14px;overflow:hidden;transition:border-color .18s,transform .12s}
+  /* persona grid — cinematic cards */
+  .grid{display:flex;flex-direction:column;gap:13px;padding-bottom:30px}
+  .card{position:relative;border:1px solid var(--line);background:var(--carbon-2);border-radius:15px;overflow:hidden;transition:border-color .18s,transform .12s,box-shadow .2s}
   .card:active{transform:scale(.992)}
-  .card:hover{border-color:rgba(255,90,31,.3)}
-  .card .corner{position:absolute;top:0;right:0;width:30px;height:30px;border-top:1px solid var(--line);border-right:1px solid var(--line);border-top-right-radius:14px}
-  .card .corner::after{content:"";position:absolute;top:6px;right:6px;width:4px;height:4px;background:var(--orange);border-radius:50%}
-  .card .cname{font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.1}
-  .card .crole{color:var(--mute);font-size:12.5px;margin-top:2px}
-  .card .ctags{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap}
+  .card:hover{border-color:rgba(255,90,31,.35);box-shadow:0 8px 30px -12px rgba(0,0,0,.6)}
+  .cardtop{position:relative;height:150px;background:linear-gradient(135deg,var(--panel),#0d0d0f)}
+  .cardtop .cimg{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block}
+  .cardtop.noimg .cimg{display:none}
+  .cardtop.noimg::before{content:"";position:absolute;inset:0;background:radial-gradient(130% 100% at 78% 0%,rgba(255,90,31,.12),transparent 55%)}
+  .cardtop .cgrad{position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,13,15,.12) 0%,rgba(13,13,15,0) 38%,rgba(13,13,15,.93) 100%)}
+  .cardtop .cnamewrap{position:absolute;left:16px;right:16px;bottom:12px;z-index:2}
+  .cardtop .cnamewrap .cname{font-family:var(--serif);font-size:21px;font-weight:600;line-height:1.06;text-shadow:0 1px 14px rgba(0,0,0,.55)}
+  .cardtop .cnamewrap .crole{color:#d2d2d5;font-size:12px;margin-top:3px;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+  .cardtop .cdiff{position:absolute;top:11px;right:11px;z-index:2;background:rgba(13,13,15,.5);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+  .cardbody{padding:13px 16px 15px}
+  .cardbody .sell{font-size:12.5px;color:var(--mute);line-height:1.45}
+  .cardbody .sell b{color:var(--ink);font-weight:500}
+  .cardbody .ctags{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap}
   .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line);border-radius:20px;padding:4px 9px}
-  .tag.diff-brutal{color:var(--red);border-color:rgba(240,80,110,.3)}
-  .tag.diff-hard{color:var(--amber);border-color:rgba(242,193,78,.3)}
-  .tag.diff-warm{color:var(--green);border-color:rgba(54,211,153,.3)}
+  .tag.diff-brutal{color:var(--red);border-color:rgba(240,80,110,.35)}
+  .tag.diff-hard{color:var(--amber);border-color:rgba(242,193,78,.35)}
+  .tag.diff-warm{color:var(--green);border-color:rgba(54,211,153,.35)}
   .tag.pts{color:var(--faint)}
-  .card .sell{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--mute);line-height:1.45}
-  .card .sell b{color:var(--ink);font-weight:500}
 
   /* setup / settings */
   .field{margin-bottom:15px}
@@ -113,15 +119,25 @@
   .call{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;padding-bottom:30px}
   .call .who{font-family:var(--serif);font-size:30px;font-weight:600;margin-top:6px}
   .call .whorole{color:var(--mute);font-size:13px;margin-bottom:30px}
-  .orb{width:168px;height:168px;border-radius:50%;display:grid;place-items:center;position:relative;margin-bottom:28px}
-  .orb .core{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#2a2a2e,#0d0d0f);border:1px solid var(--line);display:grid;place-items:center;transition:transform .25s,box-shadow .25s}
-  .orb .ring{position:absolute;inset:0;border-radius:50%;border:1px solid transparent}
-  .orb.speaking .core{box-shadow:0 0 60px -6px rgba(255,90,31,.6);border-color:var(--orange);transform:scale(1.05)}
-  .orb.speaking .ring{border-color:rgba(255,90,31,.4);animation:pulse 1.4s ease-out infinite}
-  .orb.listening .core{box-shadow:0 0 40px -10px rgba(54,211,153,.45);border-color:rgba(54,211,153,.5)}
-  .orb.listening .ring{border-color:rgba(54,211,153,.3);animation:pulse 2s ease-out infinite}
-  @keyframes pulse{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.35);opacity:0}}
-  .orb .ic{font-size:34px}
+  .callface{position:relative;width:212px;height:212px;border-radius:24px;overflow:hidden;margin-bottom:26px;border:1px solid var(--line);background:radial-gradient(circle at 40% 30%,#26262a,#0d0d0f);transition:box-shadow .3s,transform .3s,border-color .3s}
+  .callface .cfimg{width:100%;height:100%;object-fit:cover;object-position:center 26%;display:block}
+  .callface.noimg .cfimg{display:none}
+  .callface .cfic{position:absolute;inset:0;display:none;place-items:center;font-size:42px;opacity:.7}
+  .callface.noimg .cfic{display:grid}
+  .callface .ring{position:absolute;inset:-2px;border-radius:26px;border:2px solid transparent;pointer-events:none}
+  .callface.speaking{box-shadow:0 0 65px -6px rgba(255,90,31,.55);border-color:var(--orange);transform:scale(1.03)}
+  .callface.speaking .ring{border-color:rgba(255,90,31,.4);animation:pulse 1.5s ease-out infinite}
+  .callface.listening{box-shadow:0 0 48px -10px rgba(54,211,153,.45);border-color:rgba(54,211,153,.5)}
+  .callface.listening .ring{border-color:rgba(54,211,153,.3);animation:pulse 2s ease-out infinite}
+  @keyframes pulse{0%{transform:scale(1);opacity:.85}100%{transform:scale(1.16);opacity:0}}
+  /* scenario hero */
+  .hero{position:relative;height:190px;border-radius:16px;overflow:hidden;margin:2px 0 16px;border:1px solid var(--line);background:linear-gradient(135deg,var(--panel),#0d0d0f)}
+  .hero .himg{width:100%;height:100%;object-fit:cover;object-position:center 28%;display:block}
+  .hero.noimg .himg{display:none}
+  .hero .hgrad{position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,13,15,.08),rgba(13,13,15,.88))}
+  .hero .hname{position:absolute;left:18px;right:18px;bottom:14px}
+  .hero .hname .hn{font-family:var(--serif);font-size:27px;font-weight:600;line-height:1.02;text-shadow:0 1px 14px rgba(0,0,0,.5)}
+  .hero .hname .hr{color:#d4d4d7;font-size:13px;margin-top:4px;text-shadow:0 1px 8px rgba(0,0,0,.65)}
   .status{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);min-height:16px}
   .captions{margin-top:20px;min-height:46px;max-width:430px;font-size:15px;line-height:1.5;color:var(--ink)}
   .captions .src{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:3px}
@@ -181,7 +197,7 @@ const RANKS = [
   {name:"Greenhorn",    at:0},
   {name:"Cold Caller",  at:3},
   {name:"Smooth Talker",at:8},
-  {name:"Closer",       at:16},
+  {name:"Negotiator",   at:16},
   {name:"Deal Maker",   at:28},
   {name:"Rainmaker",    at:44},
   {name:"Shark",        at:64},
@@ -488,14 +504,16 @@ function homeView(){
     <div class="grid">
       ${PERSONAS.map(p=>`
         <div class="card" onclick="DR.pick('${p.id}')">
-          <div class="corner"></div>
-          <div class="cname">${p.name}</div>
-          <div class="crole">${p.role}</div>
-          <div class="ctags">
-            <span class="tag diff-${p.difficulty}">${p.difficulty}</span>
-            <span class="tag pts">+${DIFF_PTS[p.difficulty]} on close</span>
+          <div class="cardtop">
+            <img class="cimg" src="./portraits/${p.id}.png" alt="" loading="lazy" onerror="this.closest('.cardtop').classList.add('noimg')">
+            <div class="cgrad"></div>
+            <span class="tag diff-${p.difficulty} cdiff">${p.difficulty}</span>
+            <div class="cnamewrap"><div class="cname">${p.name}</div><div class="crole">${p.role}</div></div>
           </div>
-          <div class="sell">You're selling: <b>${p.sell}</b></div>
+          <div class="cardbody">
+            <div class="sell">You're selling: <b>${p.sell}</b></div>
+            <div class="ctags"><span class="tag pts">+${DIFF_PTS[p.difficulty]} on close</span></div>
+          </div>
         </div>`).join("")}
     </div>`;
 }
@@ -524,9 +542,13 @@ function topicView(){
   const p=S.persona, m=MODES[S.mode], rp=rankProgress(getXP(S.mode));
   const diffColor = p.difficulty==='brutal'?'red':p.difficulty==='hard'?'amber':'green';
   return `<button class="back" onclick="DR.go('home')">← back</button>
-    <div class="eyebrow label">Your scenario</div>
-    <div class="h1" style="font-size:27px">${p.name}</div>
-    <div class="sub" style="margin-bottom:12px">${p.role} · <span style="color:var(--${diffColor})">${p.difficulty}</span> · ${m.icon} ${m.label} rank: <b style="color:var(--ink)">${rp.cur.name}</b></div>
+    <div class="eyebrow label" style="margin-bottom:8px">Your scenario</div>
+    <div class="hero">
+      <img class="himg" src="./portraits/${p.id}.png" alt="" onerror="this.closest('.hero').classList.add('noimg')">
+      <div class="hgrad"></div>
+      <div class="hname"><div class="hn">${p.name}</div><div class="hr">${p.role} · <span style="color:var(--${diffColor})">${p.difficulty}</span></div></div>
+    </div>
+    <div class="sub" style="margin:0 0 12px">${m.icon} ${m.label} rank: <b style="color:var(--ink)">${rp.cur.name}</b></div>
 
     <div class="label" style="margin-bottom:2px">Choose your approach</div>
     <div class="modeseg">
@@ -550,9 +572,13 @@ function callView(){
   const p=S.persona, m=MODES[S.mode];
   return `<div class="call">
     <div class="label">Connected · ${m.label} mode</div>
+    <div class="callface" id="callface">
+      <img class="cfimg" src="./portraits/${p.id}.png" alt="" onerror="this.closest('.callface').classList.add('noimg')">
+      <span class="cfic">📞</span>
+      <div class="ring"></div>
+    </div>
     <div class="who">${p.name}</div>
     <div class="whorole">${p.role}</div>
-    <div class="orb" id="orb"><div class="ring"></div><div class="core"><span class="ic" id="orbic">📞</span></div></div>
     <div class="status" id="status">${S.status||"connecting…"}</div>
     <div class="captions" id="captions"></div>
     <button class="endbtn" onclick="DR.endCall()">■ End call</button>
@@ -687,11 +713,11 @@ window.DR = DR;
 
 function setStatus(t){ S.status=t; const el=document.getElementById("status"); if(el) el.textContent=t; }
 function setOrb(mode){
-  const orb=document.getElementById("orb"), ic=document.getElementById("orbic");
+  const orb=document.getElementById("callface");
   if(!orb) return;
   orb.classList.remove("speaking","listening");
-  if(mode==="speaking"){ orb.classList.add("speaking"); if(ic)ic.textContent="🔊"; setStatus(S.persona.name+" is speaking"); }
-  else { orb.classList.add("listening"); if(ic)ic.textContent="🎙"; setStatus("your turn — speak"); }
+  if(mode==="speaking"){ orb.classList.add("speaking"); setStatus(S.persona.name+" is speaking"); }
+  else { orb.classList.add("listening"); setStatus("your turn — speak"); }
 }
 function showCaption(role,text){
   const el=document.getElementById("captions"); if(!el) return;
