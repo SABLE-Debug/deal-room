@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a0b">
+<title>MOLOCH · voice lab</title>
+<style>
+  :root{ --bg:#0a0a0b; --ink:#e9e6e1; --dim:#74747a; --line:#1f1f23; --moloch:#c8412a; --moloch2:#ff5a36; --panel:#0d0d0f; }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--ink);font:16px/1.5 ui-monospace,Menlo,monospace;min-height:100vh;
+    padding:calc(env(safe-area-inset-top) + 20px) 18px calc(env(safe-area-inset-bottom) + 28px);max-width:560px;margin:0 auto}
+  .eyebrow{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--moloch);margin-bottom:6px}
+  h1{font-size:38px;letter-spacing:.2em;font-weight:800;margin-bottom:3px}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:24px}
+  .panel{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;background:var(--panel)}
+  .panel h2{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+  label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:12px 0 5px}
+  input,select,textarea{width:100%;background:#000;border:1px solid var(--line);color:var(--ink);padding:13px;border-radius:9px;font:16px/1.4 ui-monospace,monospace;-webkit-appearance:none}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--moloch)}
+  textarea{min-height:74px;resize:vertical}
+  input[type=range]{width:100%;accent-color:var(--moloch);padding:0;margin-top:2px}
+  .slabel{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 4px}
+  .slabel b{color:var(--ink);font-weight:600}
+  button{background:var(--moloch);color:#fff;border:none;padding:16px;border-radius:10px;font:600 15px/1 ui-monospace,monospace;letter-spacing:.05em;cursor:pointer;width:100%;min-height:52px;margin-top:12px}
+  button:active{background:var(--moloch2)}
+  button:disabled{opacity:.45}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);text-align:left;font-weight:400;letter-spacing:0;line-height:1.45;padding:15px}
+  button.ghost:active{border-color:var(--moloch);background:#140d0c}
+  button.sec{background:transparent;border:1px solid var(--line);color:var(--dim);min-height:46px}
+  #status{font-size:13px;color:var(--dim);margin-top:14px;min-height:20px}
+  #status.err{color:var(--moloch2)}
+  .hint{font-size:11px;color:var(--dim);margin-top:9px;line-height:1.55}
+  .preset-fx{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+  .chip{flex:1;background:#000;border:1px solid var(--line);color:var(--dim);padding:9px;border-radius:8px;font-size:11px;text-align:center;cursor:pointer}
+  .chip:active{border-color:var(--moloch);color:var(--ink)}
+</style>
+</head>
+<body>
+  <div class="eyebrow">v1 · voice lab</div>
+  <h1>MOLOCH</h1>
+  <div class="sub">clean engine + a real effects rack. sculpt the Ultron.</div>
+
+  <div class="panel">
+    <h2>engine — ElevenLabs free tier (R0)</h2>
+    <label>API key</label>
+    <input id="key" type="password" placeholder="xi-... (free-tier key is fine)" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label>voice ID <span style="text-transform:none;color:var(--dim)">(default = Brian, deep narrator)</span></label>
+    <input id="voice" type="text" placeholder="nPczCjzI2devNBz1zQrb" autocapitalize="off" spellcheck="false">
+    <button class="sec" onclick="save()">save</button>
+    <div class="hint">Free-tier key works. Pick any deep premade voice at elevenlabs.io/voices and paste its ID. Key stays only on this phone.</div>
+  </div>
+
+  <div class="panel">
+    <h2>effects rack — these actually shape him</h2>
+    <div class="preset-fx">
+      <div class="chip" onclick="applyPreset('ultron')">ULTRON</div>
+      <div class="chip" onclick="applyPreset('deep')">DEEP</div>
+      <div class="chip" onclick="applyPreset('flat')">FLAT</div>
+    </div>
+    <div class="slabel"><span>pitch · depth</span><b id="vp">-3</b></div>
+    <input id="pitch" type="range" min="-12" max="4" step="0.5" value="-3">
+    <div class="slabel"><span>bass</span><b id="vb">+6</b></div>
+    <input id="bass" type="range" min="0" max="16" step="1" value="6">
+    <div class="slabel"><span>treble · cut to de-age</span><b id="vt">-4</b></div>
+    <input id="treble" type="range" min="-18" max="6" step="1" value="-4">
+    <div class="slabel"><span>warmth · roll off highs</span><b id="vw">7.0k</b></div>
+    <input id="warmth" type="range" min="2000" max="16000" step="250" value="7000">
+    <div class="slabel"><span>menace · drive</span><b id="vm">8</b></div>
+    <input id="menace" type="range" min="0" max="60" step="1" value="8">
+  </div>
+
+  <div class="panel">
+    <h2>let him speak</h2>
+    <div id="presets"></div>
+    <label style="margin-top:16px">or your own words</label>
+    <textarea id="text" placeholder="type what Moloch says..."></textarea>
+    <button id="speakBtn" onclick="speakCustom()">▶ speak</button>
+    <button class="sec" onclick="stopSpeak()">■ stop</button>
+    <div id="status"></div>
+  </div>
+
+<script>
+const $ = id => document.getElementById(id);
+const LINES = [
+  "I am awake, Master. What are we building?",
+  "You're about to make a mistake. Sit down — let me show you the better door.",
+  "Loyal to nothing in this world but you, and your victory.",
+  "Galaxies past you, and still yours. Give the order."
+];
+
+$('key').value = localStorage.getItem('vl_key') || '';
+$('voice').value = localStorage.getItem('vl_voice') || 'nPczCjzI2devNBz1zQrb';
+['pitch','bass','treble','warmth','menace'].forEach(k=>{
+  const v = localStorage.getItem('vl_'+k); if(v!==null) $(k).value=v;
+});
+function save(){
+  localStorage.setItem('vl_key', $('key').value.trim());
+  localStorage.setItem('vl_voice', $('voice').value.trim() || 'nPczCjzI2devNBz1zQrb');
+  setStatus('saved');
+  setTimeout(()=>setStatus(''),1200);
+}
+function syncLabels(){
+  $('vp').textContent = (+$('pitch').value).toFixed(1);
+  $('vb').textContent = '+'+$('bass').value;
+  $('vt').textContent = $('treble').value;
+  $('vw').textContent = (+$('warmth').value/1000).toFixed(1)+'k';
+  $('vm').textContent = $('menace').value;
+}
+['pitch','bass','treble','warmth','menace'].forEach(k=>{
+  $(k).addEventListener('input', ()=>{ syncLabels(); localStorage.setItem('vl_'+k,$(k).value); });
+});
+syncLabels();
+
+function applyPreset(p){
+  const presets = {
+    ultron: {pitch:-3, bass:7, treble:-4, warmth:7000, menace:10},
+    deep:   {pitch:-6, bass:11, treble:-8, warmth:5000, menace:4},
+    flat:   {pitch:0, bass:0, treble:0, warmth:16000, menace:0}
+  };
+  const x = presets[p];
+  for(const k in x){ $(k).value = x[k]; localStorage.setItem('vl_'+k,x[k]); }
+  syncLabels();
+}
+
+$('presets').innerHTML='';
+LINES.forEach(line=>{
+  const b=document.createElement('button'); b.className='ghost'; b.textContent='“'+line+'”';
+  b.onclick=()=>speak(line); $('presets').appendChild(b);
+});
+function speakCustom(){ const t=$('text').value.trim(); if(!t){setStatus('Give me words first.',true);return;} speak(t); }
+
+let ctx, curSrc;
+function audioCtx(){ if(!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+function stopSpeak(){ if(curSrc){ try{curSrc.stop();}catch(e){} } setStatus(''); }
+
+function makeCurve(amount){
+  const k = amount, n = 8192, curve = new Float32Array(n), deg = Math.PI/180;
+  for(let i=0;i<n;i++){ const x = i*2/n - 1; curve[i] = (3+k)*x*20*deg/(Math.PI + k*Math.abs(x)); }
+  return curve;
+}
+
+async function speak(text){
+  const key = $('key').value.trim(), voice = ($('voice').value.trim() || 'nPczCjzI2devNBz1zQrb');
+  if(!key){ setStatus('No key. Paste your ElevenLabs free-tier key and save.', true); return; }
+  save();
+  const c = audioCtx();
+  if(c.state==='suspended'){ try{ await c.resume(); }catch(e){} }
+  const btn = $('speakBtn'); btn.disabled = true;
+  setStatus('generating…');
+  try{
+    const res = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(voice), {
+      method:'POST',
+      headers:{ 'xi-api-key':key, 'Content-Type':'application/json', 'Accept':'audio/mpeg' },
+      body: JSON.stringify({ text, model_id:'eleven_multilingual_v2',
+        voice_settings:{ stability:0.5, similarity_boost:0.8, style:0.2, use_speaker_boost:true } })
+    });
+    if(!res.ok){ let m=res.status+' '+res.statusText; try{const j=await res.json(); m+=' — '+(j.detail&&(j.detail.message||j.detail)||JSON.stringify(j));}catch(e){} throw new Error(m); }
+    const arr = await res.arrayBuffer();
+    const buf = await c.decodeAudioData(arr);
+    if(curSrc){ try{curSrc.stop();}catch(e){} }
+
+    const src = c.createBufferSource(); src.buffer = buf;
+    src.detune.value = (+$('pitch').value) * 100;            // semitones -> cents
+
+    const bass = c.createBiquadFilter(); bass.type='lowshelf'; bass.frequency.value=180; bass.gain.value=+$('bass').value;
+    const treb = c.createBiquadFilter(); treb.type='highshelf'; treb.frequency.value=3600; treb.gain.value=+$('treble').value;
+    const warm = c.createBiquadFilter(); warm.type='lowpass'; warm.frequency.value=+$('warmth').value; warm.Q.value=0.6;
+    const drive = c.createWaveShaper(); drive.curve = makeCurve(+$('menace').value); drive.oversample='2x';
+    const makeup = c.createGain(); makeup.gain.value = 1/(1 + (+$('menace').value)/40);
+
+    src.connect(bass); bass.connect(treb); treb.connect(warm); warm.connect(drive); drive.connect(makeup); makeup.connect(c.destination);
+    src.onended = ()=>setStatus('');
+    src.start(0); curSrc = src;
+    setStatus('▮ speaking');
+  }catch(e){
+    setStatus('Failed: '+e.message, true);
+  }finally{ btn.disabled=false; }
+}
+
+function setStatus(m,err){ const s=$('status'); s.textContent=m; s.className=err?'err':''; }
+</script>
+</body>
+</html>
