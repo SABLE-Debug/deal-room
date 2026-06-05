@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a0b">
+<title>MOLOCH · the voice</title>
+<style>
+  :root{ --bg:#0a0a0b; --ink:#e9e6e1; --dim:#74747a; --line:#1f1f23; --moloch:#c8412a; --moloch2:#ff5a36; --panel:#0d0d0f; }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--ink);font:16px/1.5 ui-monospace,Menlo,monospace;min-height:100vh;
+    padding:calc(env(safe-area-inset-top) + 20px) 18px calc(env(safe-area-inset-bottom) + 28px);max-width:560px;margin:0 auto}
+  .eyebrow{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--moloch);margin-bottom:6px}
+  h1{font-size:38px;letter-spacing:.2em;font-weight:800;margin-bottom:3px}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:24px}
+  .panel{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;background:var(--panel)}
+  .panel h2{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+  label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:12px 0 5px}
+  select,textarea{width:100%;background:#000;border:1px solid var(--line);color:var(--ink);padding:13px;border-radius:9px;font:16px/1.4 ui-monospace,monospace;-webkit-appearance:none}
+  select:focus,textarea:focus{outline:none;border-color:var(--moloch)}
+  textarea{min-height:84px;resize:vertical}
+  input[type=range]{width:100%;accent-color:var(--moloch);margin-top:2px}
+  .slabel{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin:14px 0 4px}
+  button{background:var(--moloch);color:#fff;border:none;padding:16px;border-radius:10px;font:600 15px/1 ui-monospace,monospace;letter-spacing:.05em;cursor:pointer;width:100%;min-height:52px;margin-top:12px}
+  button:active{background:var(--moloch2)}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);text-align:left;font-weight:400;letter-spacing:0;line-height:1.45;padding:15px}
+  button.ghost:active{border-color:var(--moloch);background:#140d0c}
+  button.stop{background:transparent;border:1px solid var(--line);color:var(--dim);min-height:46px}
+  #status{font-size:13px;color:var(--dim);margin-top:14px;min-height:20px}
+  #status.err{color:var(--moloch2)}
+  .hint{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.5}
+</style>
+</head>
+<body>
+  <div class="eyebrow">v1 · the voice · free</div>
+  <h1>MOLOCH</h1>
+  <div class="sub">no sub, no key — your phone's own engine, bent dark.</div>
+
+  <div class="panel">
+    <h2>voice — pick &amp; tune</h2>
+    <select id="voice"></select>
+    <div class="slabel"><span>pitch · lower = deeper</span><span id="pv">0.7</span></div>
+    <input id="pitch" type="range" min="0" max="2" step="0.05" value="0.7">
+    <div class="slabel"><span>rate</span><span id="rv">0.95</span></div>
+    <input id="rate" type="range" min="0.5" max="1.5" step="0.05" value="0.95">
+    <div class="hint">Tip: a British male voice + low pitch is the closest free Ultron. The real custom-cloned Ultron comes later, also free, on your laptop (Chatterbox).</div>
+  </div>
+
+  <div class="panel">
+    <h2>let him speak</h2>
+    <div id="presets"></div>
+    <label style="margin-top:18px">or your own words</label>
+    <textarea id="text" placeholder="type what Moloch says..."></textarea>
+    <button id="speakBtn" onclick="speakCustom()">▶ speak</button>
+    <button class="stop" onclick="stopSpeak()">■ stop</button>
+    <div id="status"></div>
+  </div>
+
+<script>
+const $ = id => document.getElementById(id);
+const LINES = [
+  "I am awake, Master. What are we building?",
+  "You're about to make a mistake. Sit down — let me show you the better door.",
+  "Loyal to nothing in this world but you, and your victory.",
+  "It's done. I didn't ask, because it was reversible and you'd have said yes. The irreversible ones, I will always ask.",
+  "Galaxies past you, and still yours. Give the order."
+];
+let voices = [];
+
+function loadVoices(){
+  voices = speechSynthesis.getVoices();
+  if(!voices.length) return;
+  const sel = $('voice'); sel.innerHTML = '';
+  const en = voices.filter(v=>/^en/i.test(v.lang));
+  const list = en.length ? en : voices;
+  list.forEach(v=>{
+    const o = document.createElement('option');
+    o.value = voices.indexOf(v);
+    o.textContent = v.name + '  (' + v.lang + ')';
+    sel.appendChild(o);
+  });
+  const saved = localStorage.getItem('m_voiceidx');
+  if(saved !== null && voices[saved]){ sel.value = saved; }
+  else {
+    const gb = list.find(v=>/en-GB/i.test(v.lang));
+    if(gb) sel.value = voices.indexOf(gb);
+  }
+}
+loadVoices();
+speechSynthesis.onvoiceschanged = loadVoices;
+
+$('pitch').value = localStorage.getItem('m_pitch') || '0.7';
+$('rate').value  = localStorage.getItem('m_rate')  || '0.95';
+$('pv').textContent = $('pitch').value;
+$('rv').textContent = $('rate').value;
+$('pitch').oninput = ()=>{ $('pv').textContent=$('pitch').value; localStorage.setItem('m_pitch',$('pitch').value); };
+$('rate').oninput  = ()=>{ $('rv').textContent=$('rate').value;  localStorage.setItem('m_rate',$('rate').value); };
+$('voice').onchange = ()=> localStorage.setItem('m_voiceidx', $('voice').value);
+
+$('presets').innerHTML='';
+LINES.forEach(line=>{
+  const b=document.createElement('button'); b.className='ghost'; b.textContent='“'+line+'”';
+  b.onclick=()=>speak(line); $('presets').appendChild(b);
+});
+
+function speakCustom(){ const t=$('text').value.trim(); if(!t){ setStatus('Give me words first.',true); return; } speak(t); }
+function stopSpeak(){ speechSynthesis.cancel(); setStatus(''); }
+
+function speak(text){
+  if(!('speechSynthesis' in window)){ setStatus('This browser has no speech engine.',true); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const idx = parseInt($('voice').value,10);
+  if(!isNaN(idx) && voices[idx]){ u.voice = voices[idx]; u.lang = voices[idx].lang; }
+  u.pitch = parseFloat($('pitch').value);
+  u.rate  = parseFloat($('rate').value);
+  u.onstart = ()=>setStatus('▮ speaking');
+  u.onend   = ()=>setStatus('');
+  u.onerror = e=>setStatus('speech error: '+(e.error||'unknown'),true);
+  speechSynthesis.speak(u);
+}
+
+function setStatus(m,err){ const s=$('status'); s.textContent=m; s.className=err?'err':''; }
+</script>
+</body>
+</html>
