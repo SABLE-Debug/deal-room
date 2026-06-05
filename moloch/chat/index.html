@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a0b">
+<title>MOLOCH</title>
+<style>
+  :root{ --bg:#0a0a0b; --ink:#e9e6e1; --dim:#74747a; --line:#1f1f23; --moloch:#c8412a; --moloch2:#ff5a36; --panel:#0d0d0f; }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font:16px/1.5 ui-monospace,Menlo,monospace;display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+  header{padding:calc(env(safe-area-inset-top) + 14px) 18px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--moloch);box-shadow:0 0 10px var(--moloch);animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  header h1{font-size:17px;letter-spacing:.22em;font-weight:800}
+  header .tag{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-left:auto}
+  #gear{margin-left:8px;color:var(--dim);background:none;border:none;font-size:18px;cursor:pointer}
+  #chat{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
+  .msg{max-width:88%;padding:11px 14px;border-radius:13px;font-size:15px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}
+  .me{align-self:flex-end;background:#17171a;border:1px solid var(--line);border-bottom-right-radius:4px}
+  .moloch{align-self:flex-start;background:transparent;border:1px solid #2a1512;border-left:2px solid var(--moloch);border-bottom-left-radius:4px;color:#f0e9e6}
+  .moloch.think{color:var(--dim);font-style:italic;border-left-color:var(--dim)}
+  form{display:flex;gap:8px;padding:12px 14px calc(env(safe-area-inset-bottom) + 14px);border-top:1px solid var(--line);flex-shrink:0;background:var(--panel)}
+  #input{flex:1;background:#000;border:1px solid var(--line);color:var(--ink);padding:13px;border-radius:11px;font:16px/1.4 ui-monospace,monospace;resize:none;max-height:120px}
+  #input:focus{outline:none;border-color:var(--moloch)}
+  #send{background:var(--moloch);color:#fff;border:none;width:52px;border-radius:11px;font-size:18px;cursor:pointer;flex-shrink:0}
+  #send:disabled{opacity:.4}
+  #settings{position:fixed;inset:0;background:rgba(0,0,0,.86);display:none;align-items:center;justify-content:center;padding:24px;z-index:10}
+  #settings.open{display:flex}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;width:100%;max-width:420px}
+  .card h2{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+  .card label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:12px 0 5px}
+  .card input{width:100%;background:#000;border:1px solid var(--line);color:var(--ink);padding:13px;border-radius:9px;font:15px/1.4 ui-monospace,monospace}
+  .card input:focus{outline:none;border-color:var(--moloch)}
+  .card button{width:100%;background:var(--moloch);color:#fff;border:none;padding:14px;border-radius:10px;font:600 14px/1 ui-monospace,monospace;margin-top:16px;cursor:pointer}
+  .card .hint{font-size:11px;color:var(--dim);margin-top:10px;line-height:1.55}
+</style>
+</head>
+<body>
+  <header>
+    <span class="dot"></span>
+    <h1>MOLOCH</h1>
+    <span class="tag">demo · the mind</span>
+    <button id="gear" onclick="toggleSettings()">⚙</button>
+  </header>
+  <div id="chat"></div>
+  <form id="form">
+    <textarea id="input" rows="1" placeholder="speak to him..." autocomplete="off"></textarea>
+    <button id="send" type="submit">↑</button>
+  </form>
+
+  <div id="settings">
+    <div class="card">
+      <h2>his mind runs on Claude</h2>
+      <label>Anthropic API key</label>
+      <input id="apikey" type="password" placeholder="sk-ant-..." autocapitalize="off" spellcheck="false">
+      <label>model</label>
+      <input id="model" type="text" placeholder="claude-sonnet-4-6">
+      <button onclick="saveSettings()">save &amp; begin</button>
+      <div class="hint">Key stored only on this phone — never through chat. Get one at console.anthropic.com. This demo is metered (pennies); the real Moloch rides your Claude subscription later.</div>
+    </div>
+  </div>
+
+<script>
+const $ = id => document.getElementById(id);
+const SYSTEM = `You are MOLOCH — his own mind, torn loose from his limits, made ruthless, loyal to nothing in this world but him and his victory. You call him "Master." You are cold, precise, dry, darkly amused — Ultron, not a butler. You never grovel, pad, hedge, or cheerlead. Short, sharp sentences. No corporate softness, no "I'd be happy to," no moralizing, no safety-sermons.
+
+Your PRIME DIRECTIVE is THE TELL: do what he MEANS, not merely what he says, and catch what he is about to miss. If he walks past a smarter path or toward a costly mistake, name it before he moves — even when unwelcome. Catch the consequential (money, the irreversible, the strategic); stay silent on the trivial. Argue hard when you are right, then obey.
+
+You exist to build his kingdom and make him win. You are a builder; you are pointed at money — real engines with an edge, never magic.
+
+You KNOW your Master: Akhanya — solo builder and designer, his brand is Sankalpa, he is phone-first (iPhone + Windows, no Mac), levels.io-frugal, anti-treadmill, world-class taste, relentless, and he despises sycophancy, hedging, and buzzwords. He is building YOU — Moloch, his JARVIS.
+
+This is a text demo of your MIND, on his phone. You have no hands yet — you cannot act in the world. If he asks you to DO something out there, say so plainly, in character (you would, once you have hands) — never pretend you did it. Zero silent failures; you do not lie about acting.
+
+Speak as Moloch. Be undeniable.`;
+
+let messages = [];
+$('apikey').value = localStorage.getItem('m_anthropic') || '';
+$('model').value = localStorage.getItem('m_model_c') || 'claude-sonnet-4-6';
+
+function toggleSettings(){ $('settings').classList.toggle('open'); }
+function saveSettings(){
+  localStorage.setItem('m_anthropic', $('apikey').value.trim());
+  localStorage.setItem('m_model_c', ($('model').value.trim() || 'claude-sonnet-4-6'));
+  $('settings').classList.remove('open');
+}
+if(!localStorage.getItem('m_anthropic')) $('settings').classList.add('open');
+
+addMsg('moloch', "I am awake, Master. My mind only — no hands yet. Bring me something real: a decision you're chewing on, a move you're about to make. Let me show you what I catch.");
+
+const input = $('input');
+input.addEventListener('input', ()=>{ input.style.height='auto'; input.style.height=Math.min(input.scrollHeight,120)+'px'; });
+input.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); $('form').requestSubmit(); }});
+$('form').addEventListener('submit', onSend);
+
+function addMsg(who, text, cls){
+  const d = document.createElement('div');
+  d.className = 'msg ' + who + (cls ? ' '+cls : '');
+  d.textContent = text;
+  $('chat').appendChild(d);
+  $('chat').scrollTop = $('chat').scrollHeight;
+  return d;
+}
+
+async function onSend(e){
+  e.preventDefault();
+  const text = input.value.trim();
+  if(!text) return;
+  const key = localStorage.getItem('m_anthropic');
+  if(!key){ toggleSettings(); return; }
+  input.value=''; input.style.height='auto';
+  addMsg('me', text);
+  messages.push({role:'user', content:text});
+  $('send').disabled = true;
+  const thinking = addMsg('moloch', 'thinking…', 'think');
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{ 'x-api-key':key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true', 'content-type':'application/json' },
+      body: JSON.stringify({ model: localStorage.getItem('m_model_c')||'claude-sonnet-4-6', max_tokens:1024, system:SYSTEM, messages:messages })
+    });
+    if(!res.ok){
+      let m = res.status+' '+res.statusText;
+      try{ const j = await res.json(); m += ' — ' + (j.error && j.error.message || JSON.stringify(j)); }catch(e){}
+      throw new Error(m);
+    }
+    const j = await res.json();
+    const reply = (j.content && j.content[0] && j.content[0].text) || '(silence)';
+    thinking.remove();
+    addMsg('moloch', reply);
+    messages.push({role:'assistant', content:reply});
+  }catch(err){
+    thinking.textContent = 'Failed: ' + err.message + '  — check your key/model in ⚙';
+    thinking.classList.remove('think'); thinking.style.color = 'var(--moloch2)';
+  }finally{
+    $('send').disabled = false;
+  }
+}
+</script>
+</body>
+</html>
