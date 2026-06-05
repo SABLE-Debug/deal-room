@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a0b">
+<title>MOLOCH · the mouth</title>
+<style>
+  :root{ --bg:#0a0a0b; --ink:#e9e6e1; --dim:#74747a; --line:#1f1f23; --moloch:#c8412a; --moloch2:#ff5a36; }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--ink);font:16px/1.5 ui-monospace,Menlo,monospace;min-height:100vh;
+    padding:calc(env(safe-area-inset-top) + 20px) 18px calc(env(safe-area-inset-bottom) + 28px);max-width:560px;margin:0 auto}
+  .eyebrow{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--moloch);margin-bottom:6px}
+  h1{font-size:38px;letter-spacing:.2em;font-weight:800;margin-bottom:3px}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:24px}
+  .panel{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;background:#0d0d0f}
+  .panel h2{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+  label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:12px 0 5px}
+  input,select,textarea{width:100%;background:#000;border:1px solid var(--line);color:var(--ink);padding:13px;border-radius:9px;
+    font:16px/1.4 ui-monospace,monospace;-webkit-appearance:none}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--moloch)}
+  textarea{min-height:84px;resize:vertical}
+  button{background:var(--moloch);color:#fff;border:none;padding:16px;border-radius:10px;font:600 15px/1 ui-monospace,monospace;
+    letter-spacing:.05em;cursor:pointer;width:100%;min-height:52px;margin-top:12px}
+  button:active{background:var(--moloch2)}
+  button:disabled{opacity:.45}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);text-align:left;font-weight:400;
+    letter-spacing:0;line-height:1.45;padding:15px}
+  button.ghost:active{border-color:var(--moloch);background:#140d0c}
+  .save{background:transparent;border:1px solid var(--line);color:var(--dim);min-height:46px}
+  #saved{font-size:12px;color:var(--moloch);text-align:center;margin-top:8px;min-height:14px}
+  #status{font-size:13px;color:var(--dim);margin-top:14px;min-height:20px;white-space:pre-wrap}
+  #status.err{color:var(--moloch2)}
+  .hint{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.5}
+</style>
+</head>
+<body>
+  <div class="eyebrow">v1 · the mouth · mobile</div>
+  <h1>MOLOCH</h1>
+  <div class="sub">tap a line. hear him.</div>
+
+  <div class="panel">
+    <h2>credentials — stored only on this phone</h2>
+    <label>ElevenLabs API key</label>
+    <input id="key" type="password" placeholder="xi-... your current key" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label>Ultron voice ID</label>
+    <input id="voice" type="text" placeholder="ID of your saved 'Moloch' voice" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label>model</label>
+    <select id="model">
+      <option value="eleven_multilingual_v2">eleven_multilingual_v2 — quality</option>
+      <option value="eleven_turbo_v2_5">eleven_turbo_v2_5 — fast</option>
+      <option value="eleven_v3">eleven_v3 — most expressive</option>
+    </select>
+    <button class="save" onclick="save()">save</button>
+    <div id="saved"></div>
+    <div class="hint">Key stays in this browser only — never through chat. Voice ID: elevenlabs.io → Voices → your Moloch voice → copy ID.</div>
+  </div>
+
+  <div class="panel">
+    <h2>let him speak</h2>
+    <div id="presets"></div>
+    <label style="margin-top:18px">or your own words</label>
+    <textarea id="text" placeholder="type what Moloch says..."></textarea>
+    <button id="speakBtn" onclick="speakCustom()">▶ speak</button>
+    <div id="status"></div>
+  </div>
+
+<script>
+const $ = id => document.getElementById(id);
+const LINES = [
+  "I am awake, Master. What are we building?",
+  "You're about to make a mistake. Sit down — let me show you the better door.",
+  "Loyal to nothing in this world but you, and your victory.",
+  "It's done. I didn't ask, because it was reversible and you'd have said yes. The irreversible ones, I will always ask.",
+  "Galaxies past you, and still yours. Give the order."
+];
+
+$('key').value = localStorage.getItem('m_key') || '';
+$('voice').value = localStorage.getItem('m_voice') || '';
+$('model').value = localStorage.getItem('m_model') || 'eleven_multilingual_v2';
+
+function save(){
+  localStorage.setItem('m_key', $('key').value.trim());
+  localStorage.setItem('m_voice', $('voice').value.trim());
+  localStorage.setItem('m_model', $('model').value);
+  $('saved').textContent = 'saved ✓';
+  setTimeout(()=>$('saved').textContent='', 1600);
+}
+
+LINES.forEach(line=>{
+  const b = document.createElement('button');
+  b.className = 'ghost';
+  b.textContent = '“' + line + '”';
+  b.onclick = ()=>speak(line);
+  $('presets').appendChild(b);
+});
+
+function speakCustom(){
+  const t = $('text').value.trim();
+  if(!t){ setStatus('Give me words first.', true); return; }
+  speak(t);
+}
+
+// Web Audio — reliable playback on iOS (unlock the context inside the tap gesture).
+let ctx, curSrc;
+function audioCtx(){ if(!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; }
+
+async function speak(text){
+  const key = $('key').value.trim(), voice = $('voice').value.trim(), model = $('model').value;
+  if(!key){ setStatus('No API key. Zero silent failures — paste your ElevenLabs key above and save.', true); return; }
+  if(!voice){ setStatus('No voice ID. Give me the ID of your saved Moloch voice.', true); return; }
+  save();
+  const c = audioCtx();
+  if(c.state === 'suspended'){ try{ await c.resume(); }catch(e){} }   // unlock within the gesture (iOS)
+  const btn = $('speakBtn'); btn.disabled = true;
+  setStatus('generating…');
+  try{
+    const res = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(voice), {
+      method:'POST',
+      headers:{ 'xi-api-key': key, 'Content-Type':'application/json', 'Accept':'audio/mpeg' },
+      body: JSON.stringify({
+        text, model_id: model,
+        voice_settings:{ stability:0.45, similarity_boost:0.8, style:0.35, use_speaker_boost:true }
+      })
+    });
+    if(!res.ok){
+      let msg = res.status + ' ' + res.statusText;
+      try{ const j = await res.json(); msg += ' — ' + (j.detail && (j.detail.message || j.detail) || JSON.stringify(j)); }catch(e){}
+      throw new Error(msg);
+    }
+    const arr = await res.arrayBuffer();
+    const decoded = await c.decodeAudioData(arr);
+    if(curSrc){ try{ curSrc.stop(); }catch(e){} }
+    curSrc = c.createBufferSource();
+    curSrc.buffer = decoded;
+    curSrc.connect(c.destination);
+    curSrc.onended = ()=>setStatus('');
+    curSrc.start(0);
+    setStatus('▮ speaking');
+  }catch(e){
+    setStatus('Failed: ' + e.message, true);
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+function setStatus(msg, err){ const s = $('status'); s.textContent = msg; s.className = err ? 'err' : ''; }
+</script>
+</body>
+</html>
