@@ -83,6 +83,42 @@
   .tag.diff-hard{color:var(--amber);border-color:rgba(242,193,78,.35)}
   .tag.diff-warm{color:var(--green);border-color:rgba(54,211,153,.35)}
   .tag.pts{color:var(--faint)}
+  .tag.delx{color:var(--faint);margin-left:auto;background:none}
+  .tag.delx:active{color:var(--red);border-color:rgba(240,80,110,.45)}
+  /* custom-prospect cards */
+  .card.customcta{display:block;text-align:left;padding:0;width:100%;border-style:dashed;border-color:rgba(255,90,31,.32)}
+  .card.customcta:active{transform:scale(.992)}
+  .card.customcta .cardtop{height:120px}
+  .card.customcta .ccta{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);z-index:1}
+  .card.customcta .cplus{display:grid;place-items:center;width:46px;height:46px;border-radius:13px;border:1px solid rgba(255,90,31,.4);background:rgba(255,90,31,.1);color:var(--orange-soft);font-size:26px;font-weight:300;line-height:1}
+  .custombadge{position:absolute;top:11px;left:11px;z-index:2;font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange-soft);background:rgba(13,13,15,.5);border:1px solid rgba(255,90,31,.35);border-radius:20px;padding:3px 8px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+
+  /* history / trajectory */
+  .trajcard{border:1px solid var(--line);background:linear-gradient(170deg,var(--panel),var(--carbon-2));border-radius:13px;padding:14px 15px;margin-bottom:12px}
+  .trajcard .ttop{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:11px}
+  .trajcard .tmode{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:6px}
+  .trajcard .tn{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;color:var(--faint)}
+  .trajstats{display:flex;gap:10px}
+  .tstat{flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--carbon-2)}
+  .tstat .tk{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+  .tstat .tv{font-family:var(--serif);font-size:24px;font-weight:600;line-height:1;color:var(--ink)}
+  .tstat .tv small{font-size:13px;color:var(--mute)}
+  .spark{display:flex;align-items:flex-end;gap:3px;height:26px;margin-top:8px}
+  .spark i{flex:1;background:linear-gradient(180deg,var(--orange-soft),var(--orange));border-radius:2px;min-height:3px;opacity:.85}
+  .spark i.lastbar{background:linear-gradient(180deg,#fff,var(--orange-soft))}
+  .histrow{border:1px solid var(--line);background:var(--carbon-2);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .histrow .htop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+  .histrow .hname{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:7px;min-width:0}
+  .histrow .hname .hnm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .histrow .hres{font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;border-radius:20px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
+  .histrow .hres.won{color:var(--green);border:1px solid rgba(54,211,153,.4)}
+  .histrow .hres.lost{color:var(--red);border:1px solid rgba(240,80,110,.4)}
+  .histrow .hmeta{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--faint);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .histrow .hmeta .ov{color:var(--mute)}
+  .histrow .hfix{font-size:12.5px;line-height:1.45;color:var(--mute);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+  .histrow .hfix b{color:var(--orange-soft);font-weight:500}
+  .cbadge{font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--orange-soft);border:1px solid rgba(255,90,31,.35);border-radius:20px;padding:1px 6px}
+  .emptyhist{border:1px dashed var(--line);border-radius:13px;padding:26px 18px;text-align:center;color:var(--mute);font-size:13.5px;line-height:1.55}
 
   /* setup / settings */
   .field{margin-bottom:15px}
@@ -281,6 +317,33 @@ const LS = {
   get:(k,d)=>{ try{ const v=localStorage.getItem("dr_"+k); return v===null?d:JSON.parse(v);}catch(e){return d;} },
   set:(k,v)=>localStorage.setItem("dr_"+k,JSON.stringify(v))
 };
+
+/* ---------- Moloch backend (rides the Claude subscription — free grading, no API key) ---------- */
+const MOLOCH = "https://moloch.tail6f2ef0.ts.net";
+async function molochGrade(system, prompt, model="haiku"){
+  const res = await fetch(MOLOCH+"/grade",{
+    method:"POST",
+    headers:{"content-type":"application/json"},
+    body:JSON.stringify({system, prompt, model})
+  });
+  if(!res.ok) throw new Error("Grading failed: "+res.status+" "+(await res.text()).slice(0,140));
+  const j = await res.json();
+  let txt = (j.text||"").trim();
+  const mt = txt.match(/\{[\s\S]*\}/); if(mt) txt = mt[0];
+  return JSON.parse(txt);
+}
+async function molochReadUrl(url){
+  const res = await fetch(MOLOCH+"/readurl",{
+    method:"POST",
+    headers:{"content-type":"application/json"},
+    body:JSON.stringify({url})
+  });
+  if(!res.ok) throw new Error("Couldn't read that page: "+res.status+" "+(await res.text()).slice(0,140));
+  return await res.json(); // {text, url}
+}
+
+/* ---------- escape model/user text before it touches innerHTML ---------- */
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 /* ---------- progression: only CLOSING moves you up — separate ladder per mode ---------- */
 const RANKS = [
@@ -501,6 +564,94 @@ const PERSONAS = [
   }
 ];
 
+/* ---------- custom prospects (built from a real company URL via Moloch) ---------- */
+// real ElevenLabs voices pulled from the roster above, picked by gender so the voice flow always gets a valid id
+const VOICE_POOL = {
+  male:   ["nPczCjzI2devNBz1zQrb","bIHbv24MWmeRgasZH58o","iP95p4xoKVk53GoZ742B","cjVigY5qzO86Huf0OWal","pqHfZKP75CvOlQylNhV4"],
+  female: ["cgSgspJ2msm6clMCkdW9","Xb7hH8MSUJpSbSDYk0k2","EXAVITQu4vr4xnSDxMaL","FGY2WhTYpPnrIDTdsKH5","XrExE9yKIg1WjnnlVkGX"]
+};
+function pickVoice(gender){
+  const pool = VOICE_POOL[gender==='female'?'female':'male'];
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+const CUSTOM_CAP = 6;
+const getCustomProspects = ()=> LS.get("customProspects",[]);
+function saveCustomProspect(p){
+  const list=getCustomProspects().filter(x=>x.id!==p.id);
+  list.unshift(p); while(list.length>CUSTOM_CAP) list.pop();
+  LS.set("customProspects",list);
+}
+const findPersona = id => PERSONAS.find(p=>p.id===id) || getCustomProspects().find(p=>p.id===id);
+
+/* ---------- build a prospect persona from a real company's website (Moloch reads, Claude personifies) ---------- */
+function buildCustomPersonaPrompt(){
+  // mirrors the PERSONAS schema exactly so a custom prospect drops straight into buildPrompt() + gradeCall()
+  return `You are a sales-training scenario designer. You are given the scraped text of a REAL company's website. From it, invent ONE realistic decision-maker at that company and the exact thing a salesperson would cold-call to sell them. Ground everything in the company's actual business — what they really do, who would really hold the budget, the objections that buyer would really raise. No generic filler; make it feel like a real person at a real company.
+
+Return STRICT JSON only — no prose, no markdown, no code fences. Use EXACTLY these keys:
+{
+ "name":"<realistic full name of the buyer>",
+ "role":"<their title · short company descriptor, e.g. 'VP Ops · 200-store retail chain'>",
+ "gender":"<male|female>",
+ "difficulty":"<brutal|hard|warm>",
+ "personality":"<3-8 words on how they behave on a call>",
+ "mood":"<one short clause on their state right now, e.g. 'between meetings, impatient'>",
+ "objections":["<4 short, in-character objections this exact buyer would actually say>"],
+ "sell":"<the ONE specific product/service being sold to them, lowercase, ~6-12 words, tailored to their real business>",
+ "company":"<2-3 sentences on the company's real business, scale and situation, drawn from the site>",
+ "buyer":"<2-3 sentences: who this person is, what they care about, what they're wary of>",
+ "issue":"<2-3 sentences on the real, specific problem the seller is there to solve and what it costs them>",
+ "valueAngle":"<1-2 sentences on what solving it really buys them, in their world>",
+ "first":"<exactly how they answer the phone, 2-5 words, in character, e.g. 'Yeah, this is Dana.'>"
+}
+
+Rules:
+- "difficulty" MUST be exactly one of: brutal, hard, warm.
+- "gender" MUST be exactly male or female.
+- "objections" MUST be an array of 4 short strings.
+- Keep it spoken and human. The buyer must match the company's real industry and size.
+- If the page text is thin or unclear, infer a plausible business from the domain and any signal present — never refuse, always return the JSON.`;
+}
+function normalizeCustomPersona(raw, url){
+  const diff = ["brutal","hard","warm"].includes(raw.difficulty) ? raw.difficulty : "hard";
+  const gender = raw.gender==='female' ? 'female' : 'male';
+  let objs = Array.isArray(raw.objections) ? raw.objections.filter(o=>typeof o==='string'&&o.trim()).slice(0,4) : [];
+  if(!objs.length) objs = ["What does this actually cost","Just email me something","We already have something for that","I don't have time for this"];
+  const host = (()=>{ try{ return new URL(url).hostname.replace(/^www\./,""); }catch(e){ return "custom"; } })();
+  return {
+    id: "custom_"+Date.now().toString(36),
+    custom: true,
+    sourceUrl: url,
+    sourceHost: host,
+    createdAt: Date.now(),
+    name: (raw.name||"Unknown Buyer").toString().slice(0,60),
+    role: (raw.role||host).toString().slice(0,90),
+    gender,
+    difficulty: diff,
+    voiceId: pickVoice(gender),
+    personality: (raw.personality||"guarded, busy, skeptical of vendors").toString().slice(0,160),
+    mood: (raw.mood||"caught mid-task, short on time").toString().slice(0,160),
+    objections: objs,
+    sell: (raw.sell||"a tool that saves them time and money").toString().slice(0,140),
+    company: (raw.company||"A real business reached via its website.").toString().slice(0,800),
+    buyer: (raw.buyer||"The decision-maker who'd own this budget.").toString().slice(0,800),
+    issue: (raw.issue||"A real, specific problem in their day-to-day that the seller can solve.").toString().slice(0,900),
+    valueAngle: (raw.valueAngle||"They get the painful part of their week handed back.").toString().slice(0,500),
+    first: (raw.first||"Hello?").toString().slice(0,60)
+  };
+}
+async function generateCustomProspect(url){
+  const read = await molochReadUrl(url);                 // {text, url}
+  const pageText = (read.text||"").slice(0,16000);
+  if(!pageText.trim()) throw new Error("That page returned no readable text. Try the company's homepage.");
+  const sys = buildCustomPersonaPrompt();
+  const prompt = `COMPANY WEBSITE: ${read.url||url}\n\nSCRAPED PAGE TEXT:\n${pageText}\n\nBuild the prospect now as strict JSON.`;
+  const raw = await molochGrade(sys, prompt, "sonnet");   // sonnet = richer persona; same {text}→JSON extraction
+  const persona = normalizeCustomPersona(raw, read.url||url);
+  saveCustomProspect(persona);
+  return persona;
+}
+
 /* ---------- the Playbook: blueprints (steps keyed to each rubric) + public reads ---------- */
 const BLUEPRINTS = {
   discovery:{
@@ -559,10 +710,8 @@ GENERAL REALISM:
 - HOW THEY WIN: ${m.win} If and only if they genuinely earn it, gradually warm up and AGREE to a concrete next step, said plainly ("alright, let's set it up" / "okay, send me the contract"). Never agree out of politeness — only when earned. After a fair exchange, reach a decision: commit if earned, or move to wrap the call up. Don't loop forever.`;
 }
 
-/* ---------- Anthropic grading (per-mode rubric) ---------- */
+/* ---------- grading (per-mode rubric) — runs free through Moloch ---------- */
 async function gradeCall(persona, mode, transcript){
-  const key = LS.get("anthropicKey","");
-  if(!key) throw new Error("No Anthropic key set.");
   const m = MODES[mode];
   const convo = transcript.map(t=>`${t.role==='me'?'SALESPERSON':persona.name.toUpperCase()}: ${t.text}`).join("\n");
   const metricSpec = m.rubric.map(r=>`"${r.key}":<1-10>`).join(",");
@@ -580,16 +729,8 @@ Be honest and specific — this is training, flattery is useless.
 
 Reply with STRICT JSON only, no prose, no markdown:
 {"closed":<true|false>,${metricSpec},"overall":<1-10>,"verdict":"<one or two direct sentences — say plainly whether they closed and why>","the_one_fix":"<the single highest-leverage thing to change next call, concrete and actionable, focused on ${m.oneFix}>"}`;
-  const res = await fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST",
-    headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-    body:JSON.stringify({model:"claude-haiku-4-5",max_tokens:700,system:sys,messages:[{role:"user",content:`Here is the call transcript:\n\n${convo||"(no words were exchanged)"}\n\nGrade it now as strict JSON.`}]})
-  });
-  if(!res.ok){ throw new Error("Grading failed: "+res.status+" "+(await res.text()).slice(0,140)); }
-  const j = await res.json();
-  let txt = (j.content&&j.content[0]&&j.content[0].text||"").trim();
-  const mt = txt.match(/\{[\s\S]*\}/); if(mt) txt = mt[0];
-  return JSON.parse(txt);
+  const prompt = `Here is the call transcript:\n\n${convo||"(no words were exchanged)"}\n\nGrade it now as strict JSON.`;
+  return await molochGrade(sys, prompt, "haiku");
 }
 
 /* ---------- ElevenLabs prospect agent (one public agent) ---------- */
@@ -601,10 +742,10 @@ function getAgentId(){
 
 /* ---------- state + app ---------- */
 const app = document.getElementById("app");
-let S = { view:"home", persona:null, mode:"discovery", conversation:null, transcript:[], grade:null, status:"", earned:0, leveledUp:null };
+let S = { view:"home", persona:null, mode:"discovery", conversation:null, transcript:[], grade:null, status:"", earned:0, leveledUp:null, customUrl:"", customBusy:false, customStatus:"" };
 function go(v){ S.view=v; render(); }
 function toast(msg,ms=2600){ const t=document.getElementById("toast"); t.innerHTML=`<div class="toast">${msg}</div>`; if(ms) setTimeout(()=>{t.innerHTML="";},ms); }
-const ready = ()=> LS.get("agentId","") && LS.get("anthropicKey","");
+const ready = ()=> !!LS.get("agentId","");
 
 /* ---------- views ---------- */
 function header(){
@@ -616,14 +757,19 @@ function header(){
 
 function ranks3(){
   const rows = RANK_ORDER.map(mk=>{ const xp=getXP(mk); return {mk, m:MODES[mk], xp, rp:rankProgress(xp)}; });
-  const maxXp = Math.max(...rows.map(r=>r.xp));
-  const minXp = Math.min(...rows.map(r=>r.xp));
-  const weakMk = (maxXp>0 && minXp<maxXp) ? rows.find(r=>r.xp===minXp).mk : null;
+  // drill-this keys off MEASURED performance — the mode holding your real weakest rubric metric
+  const measuredWeak = weakestMetricOverall();
+  let weakMk = measuredWeak ? measuredWeak.mode : null;
+  let weakLabel = measuredWeak ? measuredWeak.name.toLowerCase() : null;
+  if(!weakMk){ // no graded data yet → fall back to the lowest-XP ladder as a hint
+    const maxXp = Math.max(...rows.map(r=>r.xp)), minXp = Math.min(...rows.map(r=>r.xp));
+    if(maxXp>0 && minXp<maxXp){ weakMk = rows.find(r=>r.xp===minXp).mk; }
+  }
   return `<div class="rankstrip ranks3">
     ${rows.map(r=>`
       <div class="r3${r.mk==='lionsden'?' real':''}">
         <div class="r3top">
-          <span class="r3mode">${r.m.icon} ${r.m.label}${r.mk==='lionsden'?` · <span style="color:var(--red)">the real one</span>`:r.mk===weakMk?` <span class="weak">drill this</span>`:``}</span>
+          <span class="r3mode">${r.m.icon} ${r.m.label}${r.mk==='lionsden'?` · <span style="color:var(--red)">the real one</span>`:r.mk===weakMk?` <span class="weak">drill${weakLabel?': '+weakLabel:' this'}</span>`:``}</span>
           <span class="r3rank">${r.rp.cur.name} <span class="r3meta">${r.rp.nxt?`${r.rp.have}/${r.rp.need}→${r.rp.nxt.name}`:'MAX'}</span></span>
         </div>
         <div class="rbar"><i style="width:${r.rp.pct}%"></i></div>
@@ -635,46 +781,75 @@ function homeView(){
   if(!ready()){
     return header()+`
     <div class="eyebrow label">First-time setup</div>
-    <div class="h1">One agent, one key.<br>Then you're on the phone.</div>
-    <div class="sub">The Deal Room runs on accounts you already have — your ElevenLabs agent powers the live voice, Claude grades the call. Nothing new to buy.</div>
+    <div class="h1">One agent.<br>Then you're on the phone.</div>
+    <div class="sub">Paste your ElevenLabs agent ID — that's the live voice on the other end. Grading is free, handled by Moloch. Nothing to buy, no API key.</div>
     <div class="btn-row"><button class="btn" onclick="DR.go('setup')">Set it up →</button></div>`;
   }
+  const histCount = LS.get("history",[]).length;
   return header()+ranks3()+`
     <button class="pblink" onclick="DR.playbook('discovery','home')"><span class="pli">📖</span><div class="plt"><div class="pln">The Playbook</div><div class="pld">Study the frameworks — the moves, cues &amp; lines</div></div><span class="plx">→</span></button>
+    <button class="pblink" onclick="DR.go('history')"><span class="pli">📈</span><div class="plt"><div class="pln">Your trajectory</div><div class="pld">${histCount?`${histCount} graded call${histCount===1?'':'s'} · close-rate &amp; trend by mode`:'Past calls, close-rate &amp; trend show up here'}</div></div><span class="plx">→</span></button>
     <div class="eyebrow label" style="margin-top:6px">Pick who you're up against</div>
     <div class="h1">Who's on the line?</div>
     <div class="sub">Choose a prospect, then choose your approach — <b style="color:var(--ink)">Discovery</b>, <b style="color:var(--ink)">Pitch</b>, or <b style="color:var(--ink)">The Method</b>. Each one's its own ladder; you only rank up by closing.</div>
     <div class="grid">
-      ${PERSONAS.map((p,i)=>`
-        <div class="card" style="--i:${i}" onclick="DR.pick('${p.id}')">
-          <div class="cardtop">
-            <img class="cimg" src="./portraits/${p.id}.png" alt="" loading="lazy" onerror="this.closest('.cardtop').classList.add('noimg')">
-            <div class="cgrad"></div>
-            <span class="tag diff-${p.difficulty} cdiff">${p.difficulty}</span>
-            <div class="cnamewrap"><div class="cname">${p.name}</div><div class="crole">${p.role}</div></div>
-          </div>
-          <div class="cardbody">
-            <div class="sell">You're selling: <b>${p.sell}</b></div>
-            <div class="ctags"><span class="tag pts">+${DIFF_PTS[p.difficulty]} on close</span></div>
-          </div>
-        </div>`).join("")}
+      ${customCtaCard()}
+      ${getCustomProspects().map((p,i)=>customCard(p,i+1)).join("")}
+      ${PERSONAS.map((p,i)=>builtinCard(p,i+1+getCustomProspects().length)).join("")}
     </div>`;
+}
+function builtinCard(p,i){
+  return `<div class="card" style="--i:${i}" onclick="DR.pick('${p.id}')">
+    <div class="cardtop">
+      <img class="cimg" src="./portraits/${p.id}.png" alt="" loading="lazy" onerror="this.closest('.cardtop').classList.add('noimg')">
+      <div class="cgrad"></div>
+      <span class="tag diff-${p.difficulty} cdiff">${p.difficulty}</span>
+      <div class="cnamewrap"><div class="cname">${p.name}</div><div class="crole">${p.role}</div></div>
+    </div>
+    <div class="cardbody">
+      <div class="sell">You're selling: <b>${p.sell}</b></div>
+      <div class="ctags"><span class="tag pts">+${DIFF_PTS[p.difficulty]} on close</span></div>
+    </div>
+  </div>`;
+}
+function customCtaCard(){
+  return `<button class="card customcta" style="--i:0" onclick="DR.go('custom')">
+    <div class="cardtop noimg">
+      <div class="cgrad"></div>
+      <span class="tag cdiff" style="color:var(--orange-soft);border-color:rgba(255,90,31,.4)">your call</span>
+      <div class="ccta"><span class="cplus">+</span></div>
+      <div class="cnamewrap"><div class="cname">Build your own prospect</div><div class="crole">Paste a real company's site → drill them</div></div>
+    </div>
+  </button>`;
+}
+function customCard(p,i){
+  return `<div class="card" style="--i:${i}" onclick="DR.pick('${p.id}')">
+    <div class="cardtop noimg">
+      <div class="cgrad"></div>
+      <span class="tag diff-${p.difficulty} cdiff">${p.difficulty}</span>
+      <span class="custombadge">custom</span>
+      <div class="cnamewrap"><div class="cname">${esc(p.name)}</div><div class="crole">${esc(p.role)}</div></div>
+    </div>
+    <div class="cardbody">
+      <div class="sell">You're selling: <b>${esc(p.sell)}</b></div>
+      <div class="ctags"><span class="tag pts">+${DIFF_PTS[p.difficulty]} on close</span><button class="tag delx" onclick="event.stopPropagation();DR.removeCustom('${p.id}')">remove</button></div>
+    </div>
+  </div>`;
 }
 
 function setupView(){
-  const ag=LS.get("agentId",""), ak=LS.get("anthropicKey","");
+  const ag=LS.get("agentId","");
   return `<button class="back" onclick="DR.go('home')">← back</button>
     <div class="eyebrow label">Settings · stays on this device</div>
-    <div class="h1" style="font-size:26px">Connect your accounts</div>
+    <div class="h1" style="font-size:26px">Connect the voice</div>
     <div class="field" style="margin-top:18px">
       <label class="label" style="color:var(--mute)">ElevenLabs Agent ID</label>
       <input id="agid" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="agent_..." value="${ag}">
-      <div class="hint">Powers the live voice. In <a href="https://elevenlabs.io/app/agents" target="_blank">elevenlabs.io → Agents</a>, make one agent → <b>Security</b> tab → turn <b>off</b> authentication (public) and turn <b>on</b> the System&nbsp;prompt, First&nbsp;message, Language &amp; Voice overrides → copy its ID here. It's public, so keep the ID unlisted.</div>
+      <div class="hint">Powers the live voice on the other end. In <a href="https://elevenlabs.io/app/agents" target="_blank">elevenlabs.io → Agents</a>, make one agent → <b>Security</b> tab → turn <b>off</b> authentication (public) and turn <b>on</b> the System&nbsp;prompt, First&nbsp;message, Language &amp; Voice overrides → copy its ID here. It's public, so keep the ID unlisted.</div>
     </div>
-    <div class="field">
-      <label class="label" style="color:var(--mute)">Anthropic (Claude) API key</label>
-      <input id="ak" type="password" placeholder="sk-ant-..." value="${ak}">
-      <div class="hint">Grades each call. The same key Sharpen uses — from <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>.</div>
+    <div class="pbread" style="margin-bottom:18px">
+      <div class="blab">⚡ Grading is free</div>
+      <p>Claude reviews and scores every call through <b>Moloch</b> — no Anthropic key, no metering. Just connect the voice above and start dialing.</p>
     </div>
     <div class="btn-row">
       <button class="btn" onclick="DR.saveKeys()">Save & continue</button>
@@ -806,6 +981,52 @@ function weakestStep(mode){
   }
   return worst;
 }
+
+/* ---------- persisted call history + trajectory (Tasks 3 & 4) ---------- */
+const HISTORY_CAP = 40;
+function logHistory(mode, persona, grade){
+  if(!grade||!MODES[mode]) return;
+  const scores={}; MODES[mode].rubric.forEach(r=>{ if(typeof grade[r.key]==='number') scores[r.key]=grade[r.key]; });
+  const rec={
+    mode,
+    personaName: persona?.name || "—",
+    personaId: persona?.id || null,
+    custom: !!persona?.custom,
+    difficulty: persona?.difficulty || null,
+    scores,
+    overall: typeof grade.overall==='number'?grade.overall:null,
+    closed: !!grade.closed,
+    the_one_fix: grade.the_one_fix || "",
+    timestamp: Date.now()
+  };
+  const hist=LS.get("history",[]); hist.push(rec); while(hist.length>HISTORY_CAP) hist.shift();
+  LS.set("history",hist);
+}
+const getHistory = ()=> LS.get("history",[]).slice().reverse(); // newest-first
+const historyForMode = mode => LS.get("history",[]).filter(h=>h.mode===mode);
+function modeTrajectory(mode){
+  const all=historyForMode(mode); if(!all.length) return null;
+  const recent=all.slice(-10);
+  const overalls=recent.map(h=>h.overall).filter(v=>typeof v==='number');
+  const avg=overalls.length?overalls.reduce((a,b)=>a+b,0)/overalls.length:null;
+  const closes=recent.filter(h=>h.closed).length;
+  const last5=recent.slice(-5).map(h=>h.overall).filter(v=>typeof v==='number');
+  return { n:all.length, recentN:recent.length, avg, closeRate:Math.round(closes/recent.length*100), last5 };
+}
+// across ALL recent measured calls, the single lowest-average rubric metric → the real weakness
+function weakestMetricOverall(){
+  let worst=null;
+  for(const mode of MODE_ORDER){
+    const hist=LS.get("pb_"+mode,[]); if(!hist.length) continue;
+    for(const r of MODES[mode].rubric){
+      const vals=hist.map(h=>h[r.key]).filter(v=>typeof v==='number');
+      if(vals.length<2) continue; // need a small sample before calling it a weakness
+      const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+      if(!worst||avg<worst.avg) worst={mode, key:r.key, name:r.name, avg, n:vals.length};
+    }
+  }
+  return worst;
+}
 function playbookView(){
   const PB=["discovery","pitch","method"];
   const fw=PB.includes(S.pbMode)?S.pbMode:"discovery";
@@ -834,10 +1055,92 @@ function playbookView(){
     </div>`;
 }
 
+/* ---------- custom prospect: input + generate ---------- */
+function customView(){
+  const busy = S.customBusy;
+  const saved = getCustomProspects();
+  return `<button class="back" onclick="DR.go('home')">← back</button>
+    <div class="eyebrow label">Custom prospect</div>
+    <div class="h1" style="font-size:27px">Drill a real company.</div>
+    <div class="sub" style="margin-bottom:18px">Paste a target company's website. Claude reads it and builds you a real-feeling buyer — their business, the right decision-maker, the objections they'd actually throw. Then call them like any other prospect.</div>
+    ${busy ? `
+      <div class="loadwrap" style="min-height:200px">
+        <div class="spin"></div>
+        <div class="label">${esc(S.customStatus||"Working…")}</div>
+        <div style="font-size:13.5px;max-width:300px;color:var(--mute)">Reading the site, then personifying the buyer. Takes a few seconds.</div>
+      </div>` : `
+      <div class="field">
+        <label class="label" style="color:var(--mute)">Company website</label>
+        <input id="curl" type="url" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://acme.com" value="${esc(S.customUrl||'')}">
+        <div class="hint">Their homepage works best. We read the public page — nothing logs in.</div>
+      </div>
+      <div class="btn-row" style="padding-bottom:18px">
+        <button class="btn" onclick="DR.buildCustom()">⚡ Build the prospect</button>
+      </div>
+      ${saved.length ? `
+        <div class="label" style="margin:6px 0 12px">Your custom prospects</div>
+        <div class="grid">${saved.map((p,i)=>customCard(p,i)).join("")}</div>` : ``}`}`;
+}
+
+/* ---------- history + trajectory ---------- */
+function trajectoryCard(mode){
+  const m=MODES[mode], t=modeTrajectory(mode);
+  if(!t) return "";
+  const spark = t.last5.length>=2
+    ? `<div class="spark" aria-hidden="true">${t.last5.map((v,i)=>`<i class="${i===t.last5.length-1?'lastbar':''}" style="height:${Math.max(12,Math.round((v/10)*100))}%"></i>`).join("")}</div>`
+    : "";
+  return `<div class="trajcard">
+    <div class="ttop"><span class="tmode">${m.icon} ${m.label}</span><span class="tn">last ${t.recentN} of ${t.n}</span></div>
+    <div class="trajstats">
+      <div class="tstat"><div class="tk">Close rate</div><div class="tv">${t.closeRate}<small>%</small></div></div>
+      <div class="tstat"><div class="tk">Avg overall</div><div class="tv">${t.avg!=null?t.avg.toFixed(1):'–'}<small>/10</small></div></div>
+    </div>
+    ${spark}
+  </div>`;
+}
+function historyView(){
+  const hist = getHistory();
+  const haveTraj = MODE_ORDER.some(mk=>modeTrajectory(mk));
+  return `<button class="back" onclick="DR.go('home')">← back</button>
+    <div class="eyebrow label">Your trajectory</div>
+    <div class="h1" style="font-size:27px">Every call, tracked.</div>
+    <div class="sub" style="margin-bottom:16px">Close-rate and average score by approach over your recent calls — and the full log underneath. Only real closes count.</div>
+    ${haveTraj ? MODE_ORDER.map(mk=>trajectoryCard(mk)).join("") : ``}
+    ${hist.length ? `
+      <div class="label" style="margin:18px 0 12px">Call log · newest first</div>
+      ${hist.map(h=>{
+        const m=MODES[h.mode]||{icon:'•',label:h.mode};
+        const when=relTime(h.timestamp);
+        return `<div class="histrow">
+          <div class="htop">
+            <div class="hname"><span class="hnm">${esc(h.personaName)}</span>${h.custom?`<span class="cbadge">custom</span>`:``}</div>
+            <span class="hres ${h.closed?'won':'lost'}">${h.closed?'closed':'no deal'}</span>
+          </div>
+          <div class="hmeta"><span>${m.icon} ${esc(m.label)}</span>${h.difficulty?`<span>· ${esc(h.difficulty)}</span>`:``}<span class="ov">· ${h.overall!=null?h.overall+'/10 overall':'—'}</span><span>· ${when}</span></div>
+          ${h.the_one_fix?`<div class="hfix"><b>Fix:</b> ${esc(h.the_one_fix)}</div>`:``}
+        </div>`;
+      }).join("")}
+      <div class="btn-row" style="margin-top:18px;padding-bottom:34px">
+        <button class="btn ghost" onclick="DR.clearHistory()">Clear history</button>
+      </div>`
+    : `<div class="emptyhist">No calls yet. Close a few and your trajectory shows up here — close-rate, average score and the moves that keep tripping you up.</div>`}`;
+}
+function relTime(ts){
+  if(!ts) return "";
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60) return "just now";
+  const mn=Math.floor(s/60); if(mn<60) return mn+"m ago";
+  const h=Math.floor(mn/60); if(h<24) return h+"h ago";
+  const d=Math.floor(h/24); if(d<7) return d+"d ago";
+  return new Date(ts).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+}
+
 function render(){
   const v=S.view;
   app.innerHTML =
     v==="setup"?setupView():
+    v==="custom"?customView():
+    v==="history"?historyView():
     v==="topic"?topicView():
     v==="call"?callView():
     v==="grading"?gradingView():
@@ -851,15 +1154,42 @@ function render(){
 /* ---------- controller ---------- */
 const DR = {
   go,
-  pick(id){ S.persona=PERSONAS.find(p=>p.id===id); S.mode=LS.get("lastMode","discovery"); S.transcript=[]; S.grade=null; S.earned=0; S.leveledUp=null; go("topic"); },
+  pick(id){ const p=findPersona(id); if(!p){ toast("That prospect's gone — pick another."); return go("home"); } S.persona=p; S.mode=LS.get("lastMode","discovery"); S.transcript=[]; S.grade=null; S.earned=0; S.leveledUp=null; go("topic"); },
   setMode(mk){ S.mode=mk; LS.set("lastMode",mk); render(); },
   playbook(fw,back){ S.pbMode = fw || (S.mode==='lionsden'?'method':S.mode) || 'discovery'; S.pbBack = back || (S.persona?'topic':'home'); go('playbook'); },
   setPb(fw){ S.pbMode=fw; render(); },
   saveKeys(){
-    const ag=document.getElementById("agid").value.trim(), ak=document.getElementById("ak").value.trim();
-    if(!ag||!ak){ toast("Both the Agent ID and Claude key are needed."); return; }
-    LS.set("agentId",ag); LS.set("anthropicKey",ak);
+    const ag=document.getElementById("agid").value.trim();
+    if(!ag){ toast("Paste your ElevenLabs Agent ID to continue."); return; }
+    LS.set("agentId",ag);
     toast("Saved ✓"); go("home");
+  },
+
+  async buildCustom(){
+    const el=document.getElementById("curl");
+    let url=(el?el.value:S.customUrl||"").trim();
+    if(!url){ toast("Paste a company website first."); return; }
+    if(!/^https?:\/\//i.test(url)) url="https://"+url;
+    try{ new URL(url); }catch(e){ toast("That doesn't look like a valid URL."); return; }
+    S.customUrl=url; S.customBusy=true; S.customStatus="Reading the site…"; render();
+    try{
+      const persona=await generateCustomProspect(url);
+      S.customBusy=false; S.customStatus=""; S.customUrl="";
+      toast("Built "+persona.name+" ✓");
+      DR.pick(persona.id);                 // drop straight into the topic/brief for the new prospect
+    }catch(e){
+      S.customBusy=false; S.customStatus="";
+      render();
+      toast(e.message||"Couldn't build that prospect.",5000);
+    }
+  },
+  removeCustom(id){
+    LS.set("customProspects", getCustomProspects().filter(p=>p.id!==id));
+    toast("Removed"); render();
+  },
+  clearHistory(){
+    LS.set("history",[]);
+    toast("History cleared"); render();
   },
 
   async startCall(){
@@ -904,6 +1234,7 @@ const DR = {
     try{
       S.grade = await gradeCall(S.persona,S.mode,S.transcript);
       logScores(S.mode,S.grade);
+      logHistory(S.mode,S.persona,S.grade);
       S.earned = 0; S.leveledUp = null;
       if(S.grade.closed){
         const before = getXP(S.mode);
